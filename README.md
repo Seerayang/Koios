@@ -1,7 +1,5 @@
 # KOIOS prototype
 
-A browser-local prototype of Sophia’s Koios website specification. The interface uses pearl white and blue, with independently chosen colors for calendar records.
-
 ## Run
 
 Serve `dist/` using any static web server and open its URL. For example, from this directory on your computer:
