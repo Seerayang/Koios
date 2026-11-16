@@ -1,0 +1,219 @@
+<title>KOIOS Website Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Belleza&display=swap">
+<style>
+{{SITE_CSS}}
+</style>
+
+<template id="koios-svg-template">{{CHAR_SVG}}</template>
+
+<div id="app" data-view="home" data-anim="full">
+
+  <!-- ============ HOME ============ -->
+  <section id="home" class="view" aria-label="KOIOS home">
+    <canvas id="homeLine" class="vline" aria-hidden="true"></canvas>
+    <div class="homeCol">
+      <h1 class="brandBig" id="brand">KOIOS</h1>
+      <p class="tagline" id="tagline">An agent that runs your calendar.</p>
+      <div id="homeAnchor" class="anchor"></div>
+      <div class="portals" id="portals">
+        <button class="btn primary" id="getStarted" type="button">Get Started</button>
+        <button class="linkbtn" id="login" type="button">Already have an Agent? Login</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ONBOARDING ============ -->
+  <section id="onboarding" class="view" aria-label="Meet KOIOS">
+    <button class="linkbtn skip" id="obSkip" type="button">Skip to calendar</button>
+    <canvas id="obLine" class="vline" aria-hidden="true"></canvas>
+    <div class="obCol">
+      <p class="say" id="say" aria-live="polite"></p>
+      <div id="obAnchor" class="anchor"></div>
+      <div class="obChoices" id="obChoices"></div>
+      <form class="obForm" id="obForm" autocomplete="off">
+        <button type="button" class="ibtn" id="obMic" aria-label="Speak your answer (demo)" title="Speak (demo)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        </button>
+        <input id="obInput" type="text" placeholder="Type here, or tap the mic and talk" aria-label="Your answer">
+        <button type="submit" class="ibtn go" aria-label="Send">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </form>
+      <p class="hint" id="obHint"></p>
+    </div>
+  </section>
+
+  <!-- ============ CALENDAR ============ -->
+  <section id="calendar" class="view" aria-label="Calendar">
+    <header class="topbar">
+      <span class="wm">KOIOS</span>
+      <button class="tbtn" id="tToday" type="button">Today</button>
+      <button class="tbtn" id="tPrev" type="button" aria-label="Earlier">&#8249;</button>
+      <button class="tbtn" id="tNext" type="button" aria-label="Later">&#8250;</button>
+      <span class="range" id="tRange"></span>
+      <span class="tspace"></span>
+      <div class="seg" id="zoomSeg" role="group" aria-label="Zoom">
+        <button type="button" data-z="day" data-s="Day" aria-pressed="false">Day</button>
+        <button type="button" data-z="3" data-s="3D" aria-pressed="false">3 Days</button>
+        <button type="button" data-z="week" data-s="Wk" aria-pressed="true">Week</button>
+        <button type="button" data-z="month" data-s="Mo" aria-pressed="false">Month</button>
+      </div>
+      <div class="seg tz" id="tzSeg" role="group" aria-label="Time zoom">
+        <button type="button" id="tzOut" aria-label="Zoom time out" title="Zoom time out (or Ctrl/⌘ + scroll, or pinch)">&#8722;</button>
+        <button type="button" id="tzLabel" class="tzl" title="Reset time zoom">every 2 h</button>
+        <button type="button" id="tzIn" aria-label="Zoom time in" title="Zoom time in (or Ctrl/⌘ + scroll, or pinch)">+</button>
+      </div>
+      <button class="tbtn solidbtn" id="tNew" type="button" aria-label="Add an event">+ Event</button>
+      <button class="tbtn" id="tHabits" type="button" aria-label="Habits">Habits</button>
+      <button class="tbtn" id="tPers" type="button" aria-haspopup="dialog">Personalize</button>
+      <button class="crystal" id="tPrism" type="button" aria-haspopup="dialog" aria-label="Prism, your milestones" title="Prism: every milestone and how far away it is"><span>Prism</span></button>
+      <button class="avatar" id="tAcct" type="button" aria-haspopup="dialog" aria-label="Account" title="Account"><span id="acctInit">S</span></button>
+    </header>
+
+    <aside class="rail" id="rail" aria-label="Habits">
+      <h3>Habits</h3>
+      <div id="habitList"></div>
+      <form class="habitNew" id="habitNew" autocomplete="off">
+        <button type="button" class="hplus" id="habitPlus" aria-label="Add a habit" title="Add a habit">+</button>
+        <input id="habitName" type="text" placeholder="New habit, e.g. Yoga" aria-label="New habit name" maxlength="28">
+        <input id="habitDur" type="number" min="15" max="480" step="15" value="45" aria-label="Minutes">
+        <span class="hmin">min</span>
+      </form>
+    </aside>
+
+    <div class="cal z-week" id="cal">
+      <div class="content" id="content">
+        <div class="gcap" aria-hidden="true"></div>
+        <div class="ruler" id="ruler" aria-hidden="true"></div>
+        <div class="bands" id="bands"></div>
+        <div class="dlane" id="dlane"></div>
+        <div class="strips" id="strips"></div>
+      </div>
+      <div class="mgrid" id="mgrid" aria-label="Month"></div>
+    </div>
+
+    <div class="dragChip" id="dragChip" aria-hidden="true"></div>
+    <div id="agentHome" class="anchor" aria-hidden="true"></div>
+    <div class="bubble" id="bubble" role="status"></div>
+
+    <form class="chat" id="chat" autocomplete="off">
+      <span class="dot" aria-hidden="true"></span>
+      <input id="chatInput" type="text" placeholder="Tell KOIOS anything…" aria-label="Tell KOIOS">
+      <button type="button" class="ibtn" id="chatMic" aria-label="Speak (demo)" title="Speak (demo)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      </button>
+      <button type="submit" class="ibtn go" aria-label="Send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </form>
+    <div class="chatHint"><button type="button" class="aiChip" id="aiChip" aria-live="polite">AI</button><span id="chatHint">Drag across a day to place something, or just tell KOIOS.</span></div>
+
+    <div class="pop" id="evPop" role="dialog" aria-label="Edit event">
+      <label for="pTitle">Title</label>
+      <input id="pTitle" type="text" maxlength="70">
+      <label class="check" id="pAllWrap"><input id="pAll" type="checkbox"><span>Day task <small>(whole day, no time)</small></span></label>
+      <div class="two">
+        <div><label for="pDate" id="pDateLbl">Day</label><input id="pDate" type="date"></div>
+        <div id="pDate2Wrap"><label for="pDate2">Until</label><input id="pDate2" type="date"></div>
+      </div>
+      <div class="two" id="pTimes">
+        <div><label for="pStart">Start</label><input id="pStart" type="time"></div>
+        <div><label for="pEnd">End</label><input id="pEnd" type="time"></div>
+      </div>
+      <label>Colour</label>
+      <div class="swatches" id="pSwatches" role="group" aria-label="Event colour"></div>
+      <label class="check"><input id="pMile" type="checkbox"><span>Milestone</span></label>
+      <label for="pDesc">Description</label>
+      <textarea id="pDesc" rows="3" maxlength="600" placeholder="Add details, links, what to bring…"></textarea>
+      <p class="note" id="pNote"></p>
+      <div class="foot">
+        <button class="pill" id="pDel" type="button">Delete</button>
+        <button class="pill solid" id="pDone" type="button">Done</button>
+      </div>
+    </div>
+
+    <div class="pop ppanel" id="mPanel" role="dialog" aria-label="Prism: your milestones">
+      <div class="phead"><span class="gem" aria-hidden="true"></span><div><h3>Prism</h3><p class="note" style="margin:0">Every milestone, nearest first.</p></div></div>
+      <div id="mList"></div>
+      <div class="foot"><button class="pill" id="mAdd" type="button">+ Milestone</button><button class="pill solid" id="mClose" type="button">Done</button></div>
+    </div>
+
+    <div class="pop ppanel apanel" id="aPanel" role="dialog" aria-label="Account">
+      <div class="phead"><span class="avatar big" aria-hidden="true"><span id="acctInit2">S</span></span><div><h3 id="acctName">Your name</h3><p class="note" style="margin:0" id="acctMail">Add your email below</p></div></div>
+      <div class="sub">Profile</div>
+      <label class="fl" for="aName">Name</label><input id="aName" type="text" maxlength="40" placeholder="Your name">
+      <label class="fl" for="aMail">Email</label><input id="aMail" type="text" maxlength="80" placeholder="you@school.edu" inputmode="email">
+      <div class="sub">Calendar colour</div>
+      <div class="swatches" id="aTheme" role="group" aria-label="Calendar colour"></div>
+      <div class="sub">KOIOS colour <small>(stripes and eyes)</small></div>
+      <div class="swatches" id="aBot" role="group" aria-label="KOIOS colour"></div>
+      <div class="sub">Calendar</div>
+      <div class="conn aPersRow"><span>Habit themes, week themes, reminders</span><button class="pill" type="button" id="aPers">Personalize</button></div>
+      <label class="fl" for="aTz">Time zone</label>
+      <select id="aTz"><option value="auto">Automatic (this device)</option><option>America/New_York</option><option>America/Chicago</option><option>America/Denver</option><option>America/Los_Angeles</option><option>Europe/London</option><option>Europe/Paris</option><option>Asia/Hong_Kong</option><option>Asia/Shanghai</option><option>Asia/Tokyo</option></select>
+      <div class="sub">Notifications</div>
+      <label class="toggle"><span>KOIOS reminders in the calendar</span><input type="checkbox" id="aRemind" checked></label>
+      <label class="toggle"><span>Weekly email summary</span><input type="checkbox" id="aDigest"></label>
+      <div class="sub">Connected calendars</div>
+      <div class="conn"><span>Google Calendar</span><button class="pill" type="button" data-conn="google">Connect</button></div>
+      <div class="conn"><span>Outlook</span><button class="pill" type="button" data-conn="outlook">Connect</button></div>
+      <div class="conn"><span>Apple Calendar</span><button class="pill" type="button" data-conn="apple">Connect</button></div>
+      <div class="sub">Plan and data</div>
+      <div class="conn"><span>Free plan <small>· unlimited events</small></span><button class="pill" type="button" id="aUpgrade">Upgrade</button></div>
+      <div class="conn"><span>Copy my calendar as text</span><button class="pill" type="button" id="aCopy">Copy</button></div>
+      <div class="conn"><span>Delete all events</span><button class="pill" type="button" id="aWipe">Delete…</button></div>
+      <div class="sub">Help</div>
+      <p class="note" style="margin:0">Press <b>/</b> to talk to KOIOS, <b>Esc</b> to close anything. Drag across a day to place something, drag an event to move it, drag its top or bottom edge to change its length.</p>
+      <div class="foot"><button class="pill" id="aOut" type="button">Sign out</button><button class="pill solid" id="aClose" type="button">Done</button></div>
+    </div>
+
+    <div class="pop ppanel" id="pPanel" role="dialog" aria-label="Personalize your calendar">
+      <p class="note" style="margin:0 0 6px">Everything here is optional. KOIOS already uses sensible defaults.</p>
+      <div class="sub">Show</div>
+      <label class="toggle" style="margin:0;text-transform:none;letter-spacing:0;font-family:var(--f-body);font-size:14px;color:var(--ink)"><span>Day themes (Monday = Run Day)</span><input type="checkbox" id="pThemes" checked></label>
+      <label class="toggle" style="margin:0;text-transform:none;letter-spacing:0;font-family:var(--f-body);font-size:14px;color:var(--ink)"><span>Week themes (seasons and festivals)</span><input type="checkbox" id="pSeasons" checked></label>
+      <label class="toggle" style="margin:0;text-transform:none;letter-spacing:0;font-family:var(--f-body);font-size:14px;color:var(--ink)"><span>Proactive reminders</span><input type="checkbox" id="pRemind" checked></label>
+      <div class="sub">Day themes</div>
+      <div class="chips" id="themeChips"></div>
+      <div class="two" style="margin-top:8px">
+        <select id="thDow" aria-label="Weekday"></select>
+        <input type="text" id="thWord" placeholder="e.g. piano" aria-label="Theme word">
+      </div>
+      <button class="pill" id="thAdd" type="button" style="margin-top:8px">Add theme</button>
+      <div class="sub">Animation</div>
+      <div class="seg" id="animSeg" role="group" aria-label="Animation">
+        <button type="button" data-a="full" aria-pressed="true">Full</button>
+        <button type="button" data-a="calm" aria-pressed="false">Calm</button>
+        <button type="button" data-a="off" aria-pressed="false">Off</button>
+      </div>
+      <div class="foot">
+        <button class="pill" id="pReset" type="button">Reset to defaults</button>
+        <button class="pill solid" id="pClose" type="button">Done</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- the one agent: it lives in every view and flies between them -->
+  <div class="agent" id="agent" aria-label="KOIOS">
+    <div id="agentFig"></div>
+    <div class="carry" id="carry"></div>
+  </div>
+
+  <nav class="proto" aria-label="Prototype views">
+    <em>Prototype</em>
+    <button type="button" data-go="home">Home</button>
+    <button type="button" data-go="onboarding">Onboarding</button>
+    <button type="button" data-go="calendar">Calendar</button>
+  </nav>
+</div>
+
+<script>
+{{PARSER_JS}}
+{{K3D_JS}}
+{{CHAR_JS}}
+{{STRING_JS}}
+{{SITE_JS}}
+</script>

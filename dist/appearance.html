@@ -1,0 +1,1311 @@
+<title>KOIOS Appearance Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Belleza&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: one large floating agent on a pearl stage, a quiet control column beside it,
+   the signature blue line across the top. Single deliberate look: pearl white and blues only. */
+:root{
+  --pearl:#F6F8FC; --pearl2:#EAF0FA; --mist:#C9D8F0; --sky:#8FB8FF; --blue:#2F6BFF; --ion:#3DD6FF; --ink:#0A1B4A; --ink2:#4A5C8A;
+  --f-display:Optima,'Optima nova',Candara,'Belleza','Segoe UI',system-ui,sans-serif; --f-body:Optima,'Optima nova',Candara,'Belleza','Segoe UI',system-ui,sans-serif; --f-mono:'JetBrains Mono',ui-monospace,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--pearl);color:var(--ink)}
+body{margin:0;font-family:var(--f-body);font-size:15px;line-height:1.5;overflow-x:clip;padding-block:8px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:16px}
+.brand{font-family:var(--f-display);font-weight:700;letter-spacing:.34em;font-size:20px;color:var(--ink)}
+.tag{font-family:var(--f-mono);font-size:12px;color:var(--ink2);letter-spacing:.04em}
+.lineWrap{position:relative;left:50%;width:100vw;transform:translateX(-50%);height:64px;margin-top:6px}
+#line{width:100%;height:100%;display:block;cursor:pointer}
+main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:start;margin-top:8px}
+.stageCol{overflow-x:clip;min-width:0;position:sticky;top:16px}
+.stage{position:relative;width:min(100%,400px);margin:12px auto 0;aspect-ratio:400/460}
+.halo{position:absolute;inset:-6% -14% -4%;border-radius:50%;background:radial-gradient(closest-side,rgba(143,184,255,.35),rgba(61,214,255,.10) 55%,transparent 72%);pointer-events:none}
+.rings{position:absolute;left:50%;bottom:6%;width:128%;aspect-ratio:3/1;transform:translateX(-50%);pointer-events:none}
+.rings i{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(143,184,255,.55)}
+.rings i:nth-child(2){inset:14% 12%;border-color:rgba(143,184,255,.4)}
+.rings i:nth-child(3){inset:28% 26%;border-color:rgba(61,214,255,.35)}
+.hero{position:relative;width:100%;cursor:grab;touch-action:pan-y}
+.hero.grab{cursor:grabbing}
+.hint{text-align:center;font-family:var(--f-mono);font-size:11.5px;color:var(--ink2);margin:6px 0 0}
+.anat{position:absolute;left:-45%;width:190%;top:0;height:calc(100% * 440 / 460);pointer-events:none;opacity:0;transition:opacity .25s;overflow:visible;display:none}
+.stage.showAnat .anat{opacity:1}
+.anat text{font-family:var(--f-body);font-size:12.5px;fill:var(--ink)}
+.anat line{stroke:var(--blue);stroke-width:1.2}
+.anat circle{fill:var(--blue)}
+.state{text-align:center;font-family:var(--f-mono);font-size:12.5px;color:var(--ink2);margin:20px 0 0;min-height:1.5em}
+.panel{display:flex;flex-direction:column;gap:20px;padding-top:12px}
+.panel section{background:rgba(234,240,250,.55);border:1px solid rgba(201,216,240,.8);border-radius:20px;padding:16px}
+h2{margin:0 0 12px;font-family:var(--f-mono);font-weight:500;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;color:inherit}
+.chip{appearance:none;border:1px solid var(--mist);background:var(--pearl);color:var(--ink);border-radius:999px;padding:7px 14px;font-size:13.5px;font-weight:500;cursor:pointer;transition:background .15s,border-color .15s,color .15s,transform .15s}
+.chip:hover{border-color:var(--sky);transform:translateY(-1px)}
+.chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.chip:focus-visible,.sw:focus-visible,.line-btn:focus-visible,input:focus-visible{outline:2px solid var(--ion);outline-offset:2px}
+.row{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:13.5px;color:var(--ink2)}
+.row input{accent-color:var(--blue);width:16px;height:16px}
+.swatches{display:flex;gap:12px;flex-wrap:wrap}
+.sw{appearance:none;width:38px;height:38px;border-radius:50%;border:2px solid var(--pearl);cursor:pointer;box-shadow:0 0 0 1px var(--mist);transition:transform .15s,box-shadow .15s}
+.sw:hover{transform:scale(1.08)}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--blue)}
+.sw[data-s="blue"]{background:linear-gradient(160deg,#8FB8FF,#2F6BFF 60%,#173FB4)}
+.sw[data-s="pearl"]{background:linear-gradient(160deg,#FFFFFF,#E3ECFA 60%,#A9BEE6)}
+.sw[data-s="ice"]{background:linear-gradient(160deg,#E3EEFF,#86B6FF 60%,#3F76D6)}
+.sw[data-s="aqua"]{background:linear-gradient(160deg,#B4F3FF,#1FB9E0 60%,#0B6F9C)}
+.sw[data-s="peri"]{background:linear-gradient(160deg,#D3DAFF,#7F8FF4 60%,#4553BC)}
+.sw[data-s="indigo"]{background:linear-gradient(160deg,#A5AFFF,#4C57E8 60%,#262D9F)}
+.swNames{font-family:var(--f-mono);font-size:11.5px;color:var(--ink2);margin-top:10px}
+.sizes{display:flex;align-items:flex-end;gap:20px}
+.sizes figure{margin:0;text-align:center;font-family:var(--f-mono);font-size:11px;color:var(--ink2)}
+.sizes figcaption{margin-top:6px}
+.corner{position:relative;margin-top:16px;height:150px;border-radius:16px;background:var(--pearl);border:1px solid var(--mist);overflow:hidden}
+.corner .cl{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--mist),transparent 35%,transparent 65%,var(--mist))}
+.corner .cap{position:absolute;left:96px;bottom:46px;background:var(--blue);color:#fff;font-size:12px;font-weight:500;padding:6px 10px;border-radius:12px 12px 12px 4px}
+.corner .mini{position:absolute;left:10px;bottom:2px;width:72px}
+.corner .cardEv{position:absolute;right:16px;top:28px;width:96px;height:44px;border-radius:12px;background:rgba(47,107,255,.14);border:1px solid rgba(47,107,255,.5);font-size:11px;padding:6px 8px;font-weight:500}
+dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:8px 12px;font-size:13.5px}
+dt{color:var(--ink)}dd{margin:0;font-family:var(--f-mono);font-size:12.5px;color:var(--ink2);text-align:right}
+.note{font-size:12.5px;color:var(--ink2);margin:12px 0 0}
+.line-btn{appearance:none;border:0;background:transparent;color:var(--blue);font-size:13px;font-weight:500;cursor:pointer;padding:0}
+@media (max-width:1100px){
+  main{grid-template-columns:minmax(0,1fr)}
+  .anatToggle{display:none}
+}
+</style>
+<style>
+/* ---------- KOIOS character ---------- */
+.koios{--k1:#8FB8FF;--k2:#2F6BFF;--k3:#173FB4;--kion:#3DD6FF;--kacc:var(--k2);--lx:0;--ly:0;--aL:20deg;--aR:-20deg;--lean:0;display:block;width:100%;height:auto;overflow:visible}
+.koios[data-skin="ice"]{--k1:#E3EEFF;--k2:#86B6FF;--k3:#3F76D6}
+.koios[data-skin="aqua"]{--k1:#B4F3FF;--k2:#1FB9E0;--k3:#0B6F9C}
+.koios[data-skin="peri"]{--k1:#D3DAFF;--k2:#7F8FF4;--k3:#4553BC}
+.koios[data-skin="indigo"]{--k1:#A5AFFF;--k2:#4C57E8;--k3:#262D9F}
+.koios[data-skin="pearl"]{--k1:#FFFFFF;--k2:#E3ECFA;--k3:#A9BEE6;--kacc:#3D86FF}
+.koios *{transform-box:fill-box;transform-origin:center}
+
+.k-float{animation:kBob 3.2s ease-in-out infinite}
+.k-headg{animation:kHead 3.2s ease-in-out -0.4s infinite}
+.k-shadow{animation:kShadow 3.2s ease-in-out infinite}
+.k-ring{animation:kRing 3.2s ease-in-out infinite}
+.k-core-dot{animation:kCore 2.4s ease-in-out infinite}
+.k-armL{animation:kSwayL 3.2s ease-in-out -0.2s infinite}
+.k-armR{animation:kSwayR 3.2s ease-in-out -0.6s infinite}
+@keyframes kBob{0%,100%{translate:0 0}50%{translate:0 -7px}}
+@keyframes kHead{0%,100%{translate:0 0}50%{translate:0 -4px}}
+@keyframes kShadow{0%,100%{scale:1;opacity:.95}50%{scale:.84;opacity:.55}}
+@keyframes kRing{0%,100%{opacity:.75}50%{opacity:1}}
+@keyframes kCore{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes kSwayL{0%,100%{translate:0 0}50%{translate:0 -3px}}
+@keyframes kSwayR{0%,100%{translate:0 0}50%{translate:0 -3px}}
+
+.k-hop{rotate:calc(var(--lean) * 1deg)}
+.k-hop.hop{animation:kHop .55s cubic-bezier(.3,.7,.4,1)}
+@keyframes kHop{0%{translate:0 0}35%{translate:0 -18px}70%{translate:0 2px}100%{translate:0 0}}
+
+/* arms and ears */
+.k-arm{transition:rotate .35s cubic-bezier(.3,.7,.4,1)}
+.k-armL{rotate:var(--aL)}
+.k-armR{rotate:var(--aR)}
+.k-armL,.k-armR{transform-origin:50% 6%}
+.k-earL,.k-earR{transform-origin:50% 85%;transition:transform .3s cubic-bezier(.3,.7,.4,1)}
+.k-earL{transform:rotate(-4deg)}
+.k-earR{transform:rotate(4deg)}
+
+/* face */
+.k-eyes{transform:translate(calc(var(--lx) * 5px),calc(var(--ly) * 4px));transition:transform .14s linear}
+.k-eye{transition:transform .22s ease}
+.k-eyeH{opacity:0;transition:opacity .15s}
+.k-m{opacity:0;transition:opacity .15s}
+.k-m-smile{opacity:1}
+.k-back{opacity:0}
+.k-z{opacity:0}
+.koios.blink .k-eye{transform:scaleY(.08)}
+
+/* moods */
+.koios[data-mood="happy"] .k-eye{opacity:0}
+.koios[data-mood="happy"] .k-eyeH{opacity:1}
+.koios[data-mood="happy"] .k-m-smile{opacity:0}
+.koios[data-mood="happy"] .k-m-grin{opacity:1}
+.koios[data-mood="happy"] .k-earL{transform:translateY(-3px) rotate(-14deg)}
+.koios[data-mood="happy"] .k-earR{transform:translateY(-3px) rotate(14deg)}
+.koios[data-mood="happy"]{--aL:34deg;--aR:-34deg}
+
+.koios[data-mood="thinking"] .k-eyes{transform:translate(8px,-7px)}
+.koios[data-mood="thinking"] .k-m-smile{opacity:0}
+.koios[data-mood="thinking"] .k-m-flat{opacity:1}
+.koios[data-mood="thinking"] .k-earL{transform:translateY(-5px) rotate(-20deg)}
+.koios[data-mood="thinking"] .k-earR{transform:rotate(8deg)}
+.koios[data-mood="thinking"] .k-ring{stroke-dasharray:22 14;animation:kOrbit 1.1s linear infinite}
+@keyframes kOrbit{to{stroke-dashoffset:-72}}
+
+.koios[data-mood="working"] .k-eye{transform:scale(1.06,.7)}
+.koios[data-mood="working"] .k-m-smile{opacity:0}
+.koios[data-mood="working"] .k-m-flat{opacity:1}
+.koios[data-mood="working"] .k-earL{transform:translateY(3px) rotate(22deg)}
+.koios[data-mood="working"] .k-earR{transform:translateY(3px) rotate(-22deg)}
+
+.koios[data-mood="alert"] .k-eye{transform:scale(1.2,1.25)}
+.koios[data-mood="alert"] .k-m-smile{opacity:0}
+.koios[data-mood="alert"] .k-m-open{opacity:1}
+.koios[data-mood="alert"] .k-earL{transform:translateY(-9px) rotate(-18deg)}
+.koios[data-mood="alert"] .k-earR{transform:translateY(-9px) rotate(18deg)}
+.koios[data-mood="alert"] .k-ring{animation:kAlert .7s ease-in-out infinite}
+@keyframes kAlert{0%,100%{opacity:.6}50%{opacity:1}}
+
+.koios[data-mood="sleepy"] .k-eye{transform:translateY(5px) scaleY(.3)}
+.koios[data-mood="sleepy"] .k-m-smile{opacity:0}
+.koios[data-mood="sleepy"] .k-m-flat{opacity:1}
+.koios[data-mood="sleepy"] .k-earL{transform:translateY(4px) rotate(26deg)}
+.koios[data-mood="sleepy"] .k-earR{transform:translateY(4px) rotate(-26deg)}
+.koios[data-mood="sleepy"] .k-float{animation-duration:5.4s}
+.koios[data-mood="sleepy"] .k-headg{animation-duration:5.4s;translate:0 4px}
+.koios[data-mood="sleepy"] .k-ring{opacity:.4;animation:none}
+.koios[data-mood="sleepy"] .k-z1{animation:kZ 2.6s ease-in-out infinite}
+.koios[data-mood="sleepy"] .k-z2{animation:kZ 2.6s ease-in-out 1.1s infinite}
+@keyframes kZ{0%{opacity:0;translate:0 8px}30%{opacity:.9}100%{opacity:0;translate:8px -14px}}
+
+.koios[data-mood="surprised"] .k-eye{transform:scale(.95,1.3)}
+.koios[data-mood="surprised"] .k-m-smile{opacity:0}
+.koios[data-mood="surprised"] .k-m-open{opacity:1}
+.koios[data-mood="surprised"] .k-earL{transform:translateY(-7px) rotate(-10deg)}
+.koios[data-mood="surprised"] .k-earR{transform:translateY(-7px) rotate(10deg)}
+.koios[data-mood="surprised"]{--aL:62deg;--aR:-62deg}
+
+/* actions: spin */
+.k-spin{transform-origin:50% 50%}
+.koios.spin .k-spin{animation:kSpin 1.2s ease-in-out}
+.koios.spin .k-face,.koios.spin .k-core{animation:kFront 1.2s linear}
+.koios.spin .k-back{animation:kBackShow 1.2s linear}
+@keyframes kSpin{0%{transform:scaleX(1)}25%{transform:scaleX(.04)}50%{transform:scaleX(-1)}75%{transform:scaleX(.04)}100%{transform:scaleX(1)}}
+@keyframes kFront{0%,24%{opacity:1}28%,72%{opacity:0}76%,100%{opacity:1}}
+@keyframes kBackShow{0%,24%{opacity:0}28%,72%{opacity:1}76%,100%{opacity:0}}
+
+/* actions: pull out a computer */
+.k-laptop{opacity:0;scale:.3;translate:0 24px;transform-origin:50% 100%}
+.koios[data-pose="laptop"] .k-laptop{animation:kLap 1s cubic-bezier(.3,.8,.4,1) forwards}
+.koios[data-pose="laptop-out"] .k-laptop{opacity:1;scale:1;translate:0 0;animation:kLapOut .45s ease-in forwards}
+@keyframes kLap{0%{opacity:0;scale:.3;translate:0 24px}100%{opacity:1;scale:1;translate:0 0}}
+@keyframes kLapOut{to{opacity:0;scale:.3;translate:0 24px}}
+.koios[data-pose="laptop"]{--aL:-58deg;--aR:58deg}
+.koios[data-pose="laptop"] .k-armL{animation:kTypeL .42s ease-in-out .4s infinite alternate}
+.koios[data-pose="laptop"] .k-armR{animation:kTypeR .42s ease-in-out .6s infinite alternate}
+@keyframes kTypeL{from{rotate:-63deg}to{rotate:-52deg}}
+@keyframes kTypeR{from{rotate:63deg}to{rotate:52deg}}
+.koios[data-pose="laptop"] .k-ln{animation:kLn 1.1s steps(2,end) infinite}
+.koios[data-pose="laptop"] .k-ln2{animation-delay:.25s}
+.koios[data-pose="laptop"] .k-ln3{animation-delay:.5s}
+.koios[data-pose="laptop"] .k-ln4{animation-delay:.75s}
+@keyframes kLn{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* actions: wave */
+.koios[data-pose="wave"]{--aR:-150deg}
+.koios[data-pose="wave"] .k-armR{animation:kWave .42s ease-in-out .35s infinite alternate}
+@keyframes kWave{from{rotate:-138deg}to{rotate:-166deg}}
+
+@media (prefers-reduced-motion: reduce){
+  .k-float,.k-headg,.k-shadow,.k-ring,.k-core-dot,.k-armL,.k-armR{animation-duration:6s}
+  .k-float{translate:0 0}
+  @keyframes kBob{0%,100%{translate:0 0}50%{translate:0 -2px}}
+}
+
+</style>
+
+
+<template id="koios-svg-template"><svg class="koios" viewBox="0 0 400 440" role="img" aria-label="KOIOS, a floating pearl and blue robot with a dark glass visor, tall ears, a cone-shaped body, a floating head and arms" data-mood="neutral" data-pose="rest">
+<defs>
+  <linearGradient id="kShell__U__" x1="0" y1="0" x2="0.35" y2="1">
+    <stop offset="0" style="stop-color:var(--k1)"/>
+    <stop offset="0.55" style="stop-color:var(--k2)"/>
+    <stop offset="1" style="stop-color:var(--k3)"/>
+  </linearGradient>
+  <radialGradient id="kHead__U__" cx="0.35" cy="0.22" r="0.95">
+    <stop offset="0" style="stop-color:var(--k1)"/>
+    <stop offset="0.55" style="stop-color:var(--k2)"/>
+    <stop offset="1" style="stop-color:var(--k3)"/>
+  </radialGradient>
+  <linearGradient id="kPearl__U__" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset="1" stop-color="#E1EAF9"/>
+  </linearGradient>
+  <radialGradient id="kShellP__U__" cx="0.34" cy="0.2" r="0.95">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset="0.55" stop-color="#EEF3FC"/>
+    <stop offset="1" stop-color="#C3D3EE"/>
+  </radialGradient>
+  <linearGradient id="kVisor__U__" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1B2D6B"/>
+    <stop offset="1" stop-color="#08123A"/>
+  </linearGradient>
+  <radialGradient id="kEyeG__U__" cx="0.5" cy="0.6" r="0.62">
+    <stop offset="0" stop-color="#E4FCFF"/>
+    <stop offset="0.55" stop-color="#6BE4FF"/>
+    <stop offset="1" stop-color="#1E9BEA"/>
+  </radialGradient>
+  <linearGradient id="kHand__U__" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#2A3F86"/>
+    <stop offset="1" stop-color="#0E1B52"/>
+  </linearGradient>
+  <clipPath id="kArmClip__U__"><rect x="-12" y="-6" width="24" height="56" rx="12"/></clipPath>
+  <clipPath id="kEarClipL__U__"><path d="M0 -54C9 -38 15 -12 14 20C13 33 -13 33 -14 20C-15 -12 -9 -38 0 -54Z"/></clipPath>
+  <radialGradient id="kGlow__U__" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" style="stop-color:var(--kion)" stop-opacity="0.6"/>
+    <stop offset="1" style="stop-color:var(--kion)" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="kEye__U__" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0A1B4A"/>
+    <stop offset="0.72" stop-color="#143A9E"/>
+    <stop offset="1" style="stop-color:var(--kion)"/>
+  </linearGradient>
+  <filter id="kBlur__U__" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter>
+  <filter id="kGlowF__U__" x="-40%" y="-300%" width="180%" height="700%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+
+<ellipse class="k-shadow" cx="200" cy="410" rx="68" ry="11" fill="url(#kGlow__U__)"/>
+
+<g class="k-spin">
+<g class="k-hop">
+<g class="k-float">
+
+  <!-- body: inverted cone with smoothed edges -->
+  <g class="k-bodyg">
+    <path class="k-body" d="M108 232C108 214 126 206 148 206H252C274 206 292 214 292 232C292 270 246 320 222 346C212 357 188 357 178 346C154 320 108 270 108 232Z" fill="url(#kShell__U__)"/>
+    <ellipse cx="150" cy="258" rx="11" ry="44" transform="rotate(16 150 258)" fill="#fff" opacity="0.28" filter="url(#kBlur__U__)"/>
+    <ellipse cx="200" cy="209" rx="92" ry="13" fill="url(#kPearl__U__)"/>
+    <ellipse cx="200" cy="211" rx="78" ry="8" style="fill:var(--k3)" opacity="0.32"/>
+    
+  </g>
+
+  <!-- glow ring in the gap between head and body -->
+  <ellipse class="k-ring" cx="200" cy="190" rx="54" ry="7" fill="none" style="stroke:var(--kion)" stroke-width="3" filter="url(#kGlowF__U__)"/>
+
+  <!-- head -->
+  <g class="k-headg">
+    <g class="k-earL"><g transform="translate(103 68) rotate(-15)">
+      <path d="M0 -54C9 -38 15 -12 14 20C13 33 -13 33 -14 20C-15 -12 -9 -38 0 -54Z" fill="url(#kShellP__U__)" stroke="#AFC3E6" stroke-width="2"/>
+      <g clip-path="url(#kEarClipL__U__)" style="fill:var(--kacc)">
+        <rect x="-16" y="-30" width="32" height="7" rx="3"/>
+        <rect x="-16" y="-15" width="32" height="7" rx="3"/>
+        <rect x="-16" y="0" width="32" height="7" rx="3"/>
+      </g>
+      <ellipse cx="-5" cy="-26" rx="2.6" ry="9" fill="#fff" opacity="0.85"/>
+    </g></g>
+    <g class="k-earR"><g transform="translate(297 68) rotate(15) scale(-1 1)">
+      <path d="M0 -54C9 -38 15 -12 14 20C13 33 -13 33 -14 20C-15 -12 -9 -38 0 -54Z" fill="url(#kShellP__U__)" stroke="#AFC3E6" stroke-width="2"/>
+      <g clip-path="url(#kEarClipL__U__)" style="fill:var(--kacc)">
+        <rect x="-16" y="-30" width="32" height="7" rx="3"/>
+        <rect x="-16" y="-15" width="32" height="7" rx="3"/>
+        <rect x="-16" y="0" width="32" height="7" rx="3"/>
+      </g>
+      <ellipse cx="-5" cy="-26" rx="2.6" ry="9" fill="#fff" opacity="0.85"/>
+    </g></g>
+
+    <ellipse cx="200" cy="106" rx="90" ry="68" fill="url(#kShellP__U__)"/>
+    <ellipse cx="158" cy="54" rx="36" ry="9" transform="rotate(-14 158 54)" fill="#fff" opacity="0.7" filter="url(#kBlur__U__)"/>
+    <path d="M148 52Q200 30 252 52" fill="none" style="stroke:var(--kacc)" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="30 9" opacity="0.9"/>
+
+    <g class="k-face">
+      <path d="M134 98C134 80 150 72 170 72H230C250 72 266 80 266 98V120C266 142 246 154 224 154H176C154 154 134 142 134 120Z" fill="url(#kVisor__U__)"/>
+      <path d="M134 98C134 80 150 72 170 72H230C250 72 266 80 266 98V120C266 142 246 154 224 154H176C154 154 134 142 134 120Z" fill="none" stroke="#fff" stroke-opacity="0.85" stroke-width="2.5"/>
+      <path d="M146 86Q168 78 196 80" fill="none" stroke="#fff" stroke-opacity="0.22" stroke-width="5" stroke-linecap="round"/>
+      <ellipse cx="150" cy="130" rx="9" ry="5" fill="#3DD6FF" opacity="0.22"/>
+      <ellipse cx="250" cy="130" rx="9" ry="5" fill="#3DD6FF" opacity="0.22"/>
+      <g class="k-eyes">
+        <g transform="translate(171 109)">
+          <g class="k-eye">
+            <ellipse rx="19" ry="22" fill="#3DD6FF" opacity="0.4" filter="url(#kBlur__U__)"/>
+            <ellipse rx="12.5" ry="16.5" fill="url(#kEyeG__U__)"/>
+            <circle cx="-4.5" cy="-7" r="4.2" fill="#fff"/>
+            <circle cx="4" cy="7" r="1.8" fill="#fff" opacity="0.8"/>
+          </g>
+          <path class="k-eyeH" d="M-12 5Q0 -13 12 5" fill="none" stroke="#7FEAFF" stroke-width="5" stroke-linecap="round"/>
+        </g>
+        <g transform="translate(229 109)">
+          <g class="k-eye">
+            <ellipse rx="19" ry="22" fill="#3DD6FF" opacity="0.4" filter="url(#kBlur__U__)"/>
+            <ellipse rx="12.5" ry="16.5" fill="url(#kEyeG__U__)"/>
+            <circle cx="-4.5" cy="-7" r="4.2" fill="#fff"/>
+            <circle cx="4" cy="7" r="1.8" fill="#fff" opacity="0.8"/>
+          </g>
+          <path class="k-eyeH" d="M-12 5Q0 -13 12 5" fill="none" stroke="#7FEAFF" stroke-width="5" stroke-linecap="round"/>
+        </g>
+      </g>
+      <g transform="translate(200 138)">
+        <path class="k-m k-m-smile" d="M-7 0Q0 6 7 0" fill="none" stroke="#7FEAFF" stroke-width="2.8" stroke-linecap="round"/>
+        <path class="k-m k-m-grin" d="M-10 -1Q0 11 10 -1Z" fill="#7FEAFF" stroke="#7FEAFF" stroke-width="2" stroke-linejoin="round"/>
+        <ellipse class="k-m k-m-open" rx="4.5" ry="5.5" fill="#7FEAFF"/>
+        <path class="k-m k-m-flat" d="M-5 2H5" fill="none" stroke="#7FEAFF" stroke-width="2.8" stroke-linecap="round"/>
+      </g>
+    </g>
+
+    <g class="k-back">
+      <circle cx="200" cy="108" r="26" fill="#fff" opacity="0.7"/>
+      <circle cx="200" cy="108" r="17" fill="none" style="stroke:var(--kacc)" stroke-width="3"/>
+      <circle cx="200" cy="108" r="7" style="fill:var(--kion)"/>
+    </g>
+
+    <g class="k-zs" font-family="Sora, 'DM Sans', sans-serif" font-weight="700" style="fill:var(--k3)">
+      <text class="k-z k-z1" x="290" y="46" font-size="22">z</text>
+      <text class="k-z k-z2" x="312" y="26" font-size="16">z</text>
+    </g>
+  </g>
+
+  <!-- laptop (hidden until pulled out) -->
+  <g class="k-laptop"><g transform="translate(200 300)">
+    <rect x="-47" y="-66" width="94" height="62" rx="8" fill="#EEF3FC" stroke="#C9D8F0" stroke-width="2"/>
+    <rect x="-40" y="-59" width="80" height="48" rx="4" fill="#0A1B4A"/>
+    <rect class="k-ln k-ln1" x="-32" y="-51" width="38" height="4" rx="2" style="fill:var(--kion)"/>
+    <rect class="k-ln k-ln2" x="-32" y="-42" width="58" height="4" rx="2" fill="#8FB8FF"/>
+    <rect class="k-ln k-ln3" x="-32" y="-33" width="30" height="4" rx="2" fill="#8FB8FF"/>
+    <rect class="k-ln k-ln4" x="-32" y="-24" width="46" height="4" rx="2" style="fill:var(--kion)"/>
+    <path d="M-58 -4H58L51 7H-51Z" fill="#DCE6F8" stroke="#C9D8F0" stroke-width="2" stroke-linejoin="round"/>
+  </g></g>
+
+  <!-- arms: float apart from the body, pearl shell with blue bands and navy hands -->
+  <g class="k-arm k-armL"><g transform="translate(86 238)">
+    <g clip-path="url(#kArmClip__U__)">
+      <rect x="-12" y="-6" width="24" height="56" fill="url(#kShellP__U__)"/>
+      <rect x="-14" y="10" width="28" height="7" style="fill:var(--kacc)"/>
+      <rect x="-14" y="24" width="28" height="7" style="fill:var(--kacc)"/>
+    </g>
+    <circle cx="0" cy="56" r="16" fill="url(#kHand__U__)"/>
+    <ellipse cx="-5" cy="50" rx="4" ry="6" fill="#fff" opacity="0.28"/>
+  </g></g>
+  <g class="k-arm k-armR"><g transform="translate(314 238)">
+    <g clip-path="url(#kArmClip__U__)">
+      <rect x="-12" y="-6" width="24" height="56" fill="url(#kShellP__U__)"/>
+      <rect x="-14" y="10" width="28" height="7" style="fill:var(--kacc)"/>
+      <rect x="-14" y="24" width="28" height="7" style="fill:var(--kacc)"/>
+    </g>
+    <circle cx="0" cy="56" r="16" fill="url(#kHand__U__)"/>
+    <ellipse cx="5" cy="50" rx="4" ry="6" fill="#fff" opacity="0.28"/>
+  </g></g>
+
+</g>
+</g>
+</g>
+</svg>
+</template>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">KOIOS</div>
+    <div class="tag">Appearance prototype · default blue</div>
+  </header>
+  <div class="lineWrap"><canvas id="line" aria-label="Signature blue line. Click to strike it."></canvas></div>
+
+  <main>
+    <section class="stageCol">
+      <div class="stage" id="stage">
+        <div class="halo"></div>
+        <div class="rings"><i></i><i></i><i></i></div>
+        <div class="hero" id="hero"></div>
+              </div>
+      <p class="hint">Drag the bot to turn it around · double-click to reset</p>
+      <p class="state" id="stateLine" role="status"></p>
+    </section>
+
+    <aside class="panel">
+      <section>
+        <h2>Expression</h2>
+        <div class="chips" id="moods"></div>
+        <p class="note">No mouth. Only the almond eyes, ears and arms change, so each mood still reads at a small size.</p>
+      </section>
+
+      <section>
+        <h2>Idle actions</h2>
+        <div class="chips" id="actions"></div>
+        <label class="row"><input type="checkbox" id="idleOn" checked> Run idle actions automatically</label>
+                <p class="note">At rest KOIOS only floats and blinks. One action plays at a time, every 12 to 26 seconds here. Spins, flips and the back view are real 3D.</p>
+      </section>
+
+      <section>
+        <h2>Band color</h2>
+        <div class="swatches" id="skins"></div>
+        <div class="swNames" id="skinName">Koios blue bands (default)</div>
+      </section>
+
+      <section>
+        <h2>Size check</h2>
+        <div class="sizes" id="sizes"></div>
+        <div class="corner" id="corner" aria-label="KOIOS in the bottom-left corner of a calendar">
+          <span class="cl" style="top:34px"></span><span class="cl" style="top:68px"></span><span class="cl" style="top:102px"></span>
+          <div class="cardEv">Running</div>
+          <div class="mini" id="cornerFig"></div>
+          <div class="cap">Added: Running, Mondays 3 PM</div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Proportions</h2>
+        <dl>
+          <dt>Head width</dt><dd>1.00</dd>
+          <dt>Head height</dt><dd>0.92</dd>
+          <dt>Visor (flush, no bulge)</dt><dd>0.86</dd>
+          <dt>Eye width, each</dt><dd>0.24</dd>
+          <dt>Body width</dt><dd>0.60</dd>
+          <dt>Body height</dt><dd>0.74</dd>
+          <dt>Gap, head to body</dt><dd>0.06</dd>
+          <dt>Ear height</dt><dd>0.33</dd>
+          <dt>Arm length</dt><dd>0.33</dd>
+        </dl>
+        <p class="note">Units are head widths, taken from the reference drawing. The visor and the eyes are painted onto the helmet, so the face sits flush. The body is pearl white with blue bands on the chest, ears and arms. The ears start at either side of the head and sweep up and out. The arms hang close to the body and end in soft pearl tips, with no dark hands. A thin navy ink line outlines every part. No mouth, no center button.</p>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<script>
+/* ---------- Signature blue line: sweeps, then rings like a struck string ---------- */
+class StringLine {
+  constructor(canvas, opts = {}) {
+    this.c = canvas; this.ctx = canvas.getContext('2d');
+    this.width = opts.width || 3;
+    this.amp = opts.amp || 26;
+    this.mode = 'idle';      // idle | sweep | ring
+    this.visible = opts.startVisible !== false;
+    this.p = this.visible ? 1 : 0;
+    this.raf = 0;
+    this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.ro = new ResizeObserver(() => { this.resize(); this.draw(performance.now()); });
+    this.ro.observe(canvas);
+    this.resize();
+    this.draw(performance.now());
+  }
+  resize() {
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    const w = this.c.clientWidth, h = this.c.clientHeight;
+    this.W = w; this.H = h;
+    this.c.width = Math.max(1, Math.round(w * dpr));
+    this.c.height = Math.max(1, Math.round(h * dpr));
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  sweep(ms = 800) {
+    this.mode = 'sweep'; this.t0 = performance.now(); this.sweepMs = this.reduced ? 1 : ms; this.p = 0; this.visible = true;
+    this.kick();
+  }
+  pluck(x0 = 0.5, amp = this.amp) {
+    if (this.reduced) { this.mode = 'idle'; this.p = 1; this.draw(performance.now()); return; }
+    this.mode = 'ring'; this.t0 = performance.now(); this.pAmp = amp; this.x0 = x0; this.p = 1; this.visible = true;
+    this.kick();
+  }
+  hide() { this.visible = false; this.p = 0; this.mode = 'idle'; this.draw(performance.now()); }
+  show() { this.visible = true; this.p = 1; this.mode = 'idle'; this.draw(performance.now()); }
+  kick() { if (!this.raf) this.raf = requestAnimationFrame(t => this.frame(t)); }
+  frame(now) {
+    this.raf = 0;
+    this.draw(now);
+    if (this.mode !== 'idle') this.raf = requestAnimationFrame(t => this.frame(t));
+  }
+  yAt(u, t) {
+    // damped standing waves, plucked at x0 (like a violin string struck)
+    const N = 8, f1 = 2.3, g1 = 2.9;
+    let y = 0, norm = 0;
+    for (let n = 1; n <= N; n++) {
+      const a = Math.sin(n * Math.PI * this.x0) / (n * n);
+      const decay = Math.exp(-g1 * (1 + 0.4 * (n - 1)) * t);
+      y += a * Math.sin(n * Math.PI * u) * Math.cos(2 * Math.PI * f1 * n * t) * decay;
+      norm += Math.abs(a) * Math.sin(n * Math.PI * this.x0);
+    }
+    return (y / (norm || 1)) * this.pAmp;
+  }
+  draw(now) {
+    const { ctx, W, H } = this;
+    ctx.clearRect(0, 0, W, H);
+    if (!this.visible && this.mode === 'idle') return;
+    const y0 = H / 2;
+    let xEnd = W;
+    if (this.mode === 'sweep') {
+      const k = Math.max(0, Math.min(1, (now - this.t0) / this.sweepMs));
+      xEnd = W * (1 - Math.pow(1 - k, 3));
+      this.p = k;
+      if (k >= 1) this.mode = 'idle';
+    }
+    let t = 0;
+    if (this.mode === 'ring') {
+      t = Math.max(0, (now - this.t0) / 1000);
+      if (t > 2.4) { this.mode = 'idle'; t = 0; this.pAmp = 0; }
+    }
+    const g = ctx.createLinearGradient(0, 0, W, 0);
+    g.addColorStop(0, '#8FB8FF'); g.addColorStop(0.5, '#2F6BFF'); g.addColorStop(1, '#3DD6FF');
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = g; ctx.lineWidth = this.width;
+    ctx.shadowColor = 'rgba(61,214,255,.55)'; ctx.shadowBlur = 10;
+    ctx.beginPath();
+    const step = 4;
+    for (let x = 0; x <= xEnd + 0.1; x += step) {
+      const xx = Math.min(x, xEnd);
+      const y = (this.mode === 'ring') ? y0 + this.yAt(xx / W, t) : y0;
+      if (x === 0) ctx.moveTo(xx, y); else ctx.lineTo(xx, y);
+    }
+    ctx.stroke();
+  }
+}
+
+/* =========================================================
+   KOIOS in 3D. A small WebGL engine written for this page (no libraries).
+   One shared GL canvas draws every figure and copies the frame into each figure's own canvas.
+   Same public API as the old SVG figure: setSkin, setMood, setPose, play, lookAt, lean, wait, later, busy.
+   ========================================================= */
+const K3 = (() => {
+  const PI = Math.PI, TAU = PI * 2;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const damp = (c, t, k, dt) => c + (t - c) * (1 - Math.exp(-k * dt));
+  const ease = k => (k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2);
+  const seg = (k, a, b) => clamp((k - a) / (b - a), 0, 1);
+  const sgp = (x, e) => Math.sign(x) * Math.pow(Math.abs(x), e);
+  const outBack = k => { const c = 1.9; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+
+  /* ---------- math (column-major 4x4) ---------- */
+  function mmul(a, b) {
+    const o = new Float32Array(16);
+    for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) {
+      let s = 0; for (let k = 0; k < 4; k++) s += a[k * 4 + r] * b[c * 4 + k]; o[c * 4 + r] = s;
+    }
+    return o;
+  }
+  function trs(p, r, s) {
+    const cx = Math.cos(r[0]), sx = Math.sin(r[0]), cy = Math.cos(r[1]), sy = Math.sin(r[1]), cz = Math.cos(r[2]), sz = Math.sin(r[2]);
+    // R = Ry * Rx * Rz
+    const r00 = cy * cz + sy * sx * sz, r01 = -cy * sz + sy * sx * cz, r02 = sy * cx;
+    const r10 = cx * sz, r11 = cx * cz, r12 = -sx;
+    const r20 = -sy * cz + cy * sx * sz, r21 = sy * sz + cy * sx * cz, r22 = cy * cx;
+    return new Float32Array([
+      r00 * s[0], r10 * s[0], r20 * s[0], 0,
+      r01 * s[1], r11 * s[1], r21 * s[1], 0,
+      r02 * s[2], r12 * s[2], r22 * s[2], 0,
+      p[0], p[1], p[2], 1]);
+  }
+  function persp(fov, asp, n, f) {
+    const t = 1 / Math.tan(fov / 2), o = new Float32Array(16);
+    o[0] = t / asp; o[5] = t; o[10] = (f + n) / (n - f); o[11] = -1; o[14] = 2 * f * n / (n - f); return o;
+  }
+  function cofactor3(m) {   // normal matrix (cofactors of the upper 3x3), column-major for uniformMatrix3fv
+    const a = (r, c) => m[c * 4 + r];
+    const C = (r, c) => {
+      const rs = [0, 1, 2].filter(i => i !== r), cs = [0, 1, 2].filter(i => i !== c);
+      const det = a(rs[0], cs[0]) * a(rs[1], cs[1]) - a(rs[0], cs[1]) * a(rs[1], cs[0]);
+      return ((r + c) % 2 ? -1 : 1) * det;
+    };
+    const o = new Float32Array(9);
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) o[c * 3 + r] = C(r, c);
+    return o;
+  }
+
+  /* ---------- scene nodes ---------- */
+  class Node {
+    constructor(parent, pos, sc) {
+      this.pos = pos || [0, 0, 0]; this.rot = [0, 0, 0]; this.sc = sc || [1, 1, 1];
+      this.world = new Float32Array(16); this.kids = []; this.parent = parent || null;
+      if (parent) parent.kids.push(this);
+    }
+    update(pw) {
+      const l = trs(this.pos, this.rot, this.sc);
+      this.world = pw ? mmul(pw, l) : l;
+      for (const k of this.kids) k.update(this.world);
+    }
+  }
+
+  /* ---------- parametric geometry ---------- */
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  function grid(nu, nv, fn, opt = {}) {
+    const pos = [], nor = [], uv = [], idx = [], e = 1e-3;
+    const epsV = v => Math.min(Math.max(v, 0.004), 0.996);
+    for (let j = 0; j <= nv; j++) {
+      const v = j / nv;
+      for (let i = 0; i <= nu; i++) {
+        const u = i / nu, p = fn(u, v), vv = epsV(v);
+        const du = sub(fn(u + e, vv), fn(u - e, vv)), dv = sub(fn(u, Math.min(vv + e, 1)), fn(u, Math.max(vv - e, 0)));
+        let n = cross(du, dv); const l = Math.hypot(n[0], n[1], n[2]) || 1;
+        pos.push(p[0], p[1], p[2]); nor.push(n[0] / l, n[1] / l, n[2] / l); uv.push(u, v);
+      }
+    }
+    // orient normals outward
+    let flip = 1;
+    if (opt.out) {
+      const i = opt.out[0] * (nu + 1) + opt.out[1], d = opt.out[2];   // [vertex row*? no: direct index], dir
+      flip = (nor[i * 3] * d[0] + nor[i * 3 + 1] * d[1] + nor[i * 3 + 2] * d[2]) >= 0 ? 1 : -1;
+    } else {
+      const c = [0, 0, 0]; const cnt = pos.length / 3;
+      for (let i = 0; i < pos.length; i += 3) { c[0] += pos[i]; c[1] += pos[i + 1]; c[2] += pos[i + 2]; }
+      c[0] /= cnt; c[1] /= cnt; c[2] /= cnt;
+      let s = 0; for (let i = 0; i < pos.length; i += 3) s += nor[i] * (pos[i] - c[0]) + nor[i + 1] * (pos[i + 1] - c[1]) + nor[i + 2] * (pos[i + 2] - c[2]);
+      flip = s >= 0 ? 1 : -1;
+    }
+    if (flip < 0) for (let i = 0; i < nor.length; i++) nor[i] = -nor[i];
+    for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
+      const a = j * (nu + 1) + i, b = a + 1, c = a + nu + 1, d = c + 1;
+      if (flip > 0) idx.push(a, b, c, b, d, c); else idx.push(a, c, b, b, c, d);   // counter-clockwise seen from outside
+    }
+    return { pos: new Float32Array(pos), nor: new Float32Array(nor), uv: new Float32Array(uv), idx: new Uint16Array(idx), n: idx.length };
+  }
+  const GEO = {
+    ball: () => grid(36, 22, (u, v) => { const t = u * TAU, p = v * PI; return [Math.sin(p) * Math.cos(t), Math.cos(p), Math.sin(p) * Math.sin(t)]; }),
+    sq: (e1, e2) => grid(40, 24, (u, v) => { const t = u * TAU + .0123, p = v * PI, s = Math.sin(p); return [sgp(s, e1) * sgp(Math.cos(t), e2), sgp(Math.cos(p), e1), sgp(s, e1) * sgp(Math.sin(t), e2)]; }),
+    cap: () => grid(28, 30, (u, v) => { const t = u * TAU, y = Math.cos(v * PI), r = Math.pow(Math.max(0, 1 - Math.pow(Math.abs(y), 4)), .25); return [r * Math.cos(t), y, r * Math.sin(t)]; }),
+    band: (y0, y1) => grid(28, 3, (u, v) => { const t = u * TAU, y = y0 + (y1 - y0) * v, r = Math.pow(Math.max(0, 1 - Math.pow(Math.abs(y), 4)), .25) * 1.05; return [r * Math.cos(t), y, r * Math.sin(t)]; }),
+    shield2: () => grid(44, 30, (u, v) => { const t = u * TAU + .0123, p = v * PI, [w, n] = shieldW(p), e = 2 / n; return [w * sgp(Math.cos(t), e), Math.cos(p), w * sgp(Math.sin(t), e) * .66]; }),
+    tube: (...a) => tube(...a),
+    shield: () => grid(36, 26, (u, v) => { const t = u * TAU, p = v * PI, y = Math.cos(p), k = .42 + .58 * (y + 1) / 2, s = Math.pow(Math.sin(p), .85); return [k * s * Math.cos(t), y, k * s * Math.sin(t) * .8]; }),
+    torus: (R, r) => grid(40, 12, (u, v) => { const t = u * TAU, q = v * TAU; return [(R + r * Math.cos(q)) * Math.cos(t), r * Math.sin(q), (R + r * Math.cos(q)) * Math.sin(t)]; }, { out: [0, 0, [1, 0, 0]] }),
+    lens: () => grid(32, 8, (u, v) => {
+      const t = u * TAU, c = Math.cos(t), s = Math.sin(t), w = Math.pow(Math.max(0, 1 - Math.pow(Math.abs(c), 2.6)), .7);
+      const x = v * c, y = v * s * w, z = .5 * Math.sqrt(Math.max(0, 1 - v * v));
+      return [x, y, z];
+    }, { out: [0, 0, [0, 0, 1]] }),
+    rect: () => grid(1, 1, (u, v) => [u * 2 - 1, 1 - v * 2, 0], { out: [0, 0, [0, 0, 1]] })
+  };
+
+
+  /* ---- the KOIOS parts ---- */
+  const HEAD = { ax: .5, ay: .46, az: .42, e1: .62, e2: .74 };
+  // height of the head surface (front, +z) at x,y: used to lay decals flush on it
+  function headZ(x, y) {
+    const { ax, ay, az, e1, e2 } = HEAD, X = Math.abs(x / ax), Y = Math.abs(y / ay);
+    const inside = 1 - Math.pow(Y, 2 / e1); if (inside <= 0) return 0;
+    const rad = Math.pow(inside, e1 / e2) - Math.pow(X, 2 / e2);
+    return rad <= 0 ? 0 : az * Math.pow(rad, e2 / 2);
+  }
+  // the torso: a heater shield, flat shoulders, soft point at the bottom. Unit coordinates, scaled by the node.
+  function shieldW(p) { const q = (1 - Math.cos(p)) / 2; return [Math.pow(Math.sin(p), .3 + .3 * q) * (1 - .55 * Math.pow(q, 1.2)), 2.6 - .7 * q]; }
+  function shieldZ(x, y) {
+    y = clamp(y, -.999, .999); const [w, n] = shieldW(Math.acos(y)), r = Math.abs(x) / w;
+    return r >= 1 ? 0 : .66 * w * Math.pow(1 - Math.pow(r, n), 1 / n);
+  }
+  const chaikin = (pts, n) => { for (let k = 0; k < n; k++) { const o = []; for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; o.push([.75 * a[0] + .25 * b[0], .75 * a[1] + .25 * b[1]], [.25 * a[0] + .75 * b[0], .25 * a[1] + .75 * b[1]]); } pts = o; } return pts; };
+  function boundary(pts) {
+    const n = pts.length, len = [0]; for (let i = 0; i < n; i++) { const a = pts[i], b = pts[(i + 1) % n]; len.push(len[i] + Math.hypot(b[0] - a[0], b[1] - a[1])); }
+    const tot = len[n];
+    return u => { u = ((u % 1) + 1) % 1; const d = u * tot; let i = 0; while (i < n - 1 && len[i + 1] < d) i++; const a = pts[i], b = pts[(i + 1) % n], k = (d - len[i]) / ((len[i + 1] - len[i]) || 1); return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; };
+  }
+  // a flat patch of paint that follows a surface: polygon outline, height function, tiny offset
+  function decal(poly, hf, delta, smooth = 3, cx = 0, cy = 0, nu = 80, nv = 5) {
+    const bf = boundary(smooth ? chaikin(poly, smooth) : poly);
+    return grid(nu, nv, (u, v) => { const b = bf(u), x = cx + (b[0] - cx) * v, y = cy + (b[1] - cy) * v; return [x, y, hf(x, y) + delta]; }, { out: [0, 0, [0, 0, 1]] });
+  }
+  // a soft tube along y with bend, taper and rounded ends (ears, arms), optionally only the slice s0..s1 (for stripes)
+  function tube(L, wx, wz, bx, bz, o = {}) {
+    const { sym = false, tp = 2.6, taper = 0, s0 = 0, s1 = 1, grow = 1 } = o;
+    const prof = s => { const k = sym ? Math.abs(2 * s - 1) : s; return Math.pow(Math.max(0, 1 - Math.pow(k, tp)), 1 / tp) * (1 - taper * s); };
+    return grid(28, 22, (u, v) => {
+      const t = u * TAU, s = s0 + (s1 - s0) * v, r = prof(s) * grow;
+      return [bx * s * s + wx * r * Math.cos(t), L * s, bz * s * s + wz * r * Math.sin(t)];
+    });
+  }
+
+  const decalGeo = (geo, name, fn) => { GEO._c = GEO._c || {}; return GEO._c['d:' + name] || (GEO._c['d:' + name] = fn()); };
+
+  /* ---------- shaders ---------- */
+  const VS = `attribute vec3 a_pos;attribute vec3 a_nor;attribute vec2 a_uv;
+uniform mat4 u_vp;uniform mat4 u_model;uniform mat3 u_nmat;uniform float u_out;
+varying vec3 v_n;varying vec3 v_p;varying vec2 v_uv;
+void main(){vec4 w=u_model*vec4(a_pos,1.);vec3 nn=normalize(u_nmat*a_nor);w.xyz+=nn*u_out;v_p=w.xyz;v_n=nn;v_uv=a_uv;gl_Position=u_vp*w;}`;
+  const FS = `precision highp float;
+uniform vec3 u_col;uniform vec3 u_emis;uniform vec3 u_cam;
+uniform float u_spec;uniform float u_shine;uniform float u_rim;uniform float u_eye;uniform float u_glow;uniform float u_flat;uniform vec3 u_ink;
+varying vec3 v_n;varying vec3 v_p;varying vec2 v_uv;
+void main(){
+  if(u_flat>.5){gl_FragColor=vec4(u_ink,1.);return;}
+  vec3 N=normalize(v_n);vec3 V=normalize(u_cam-v_p);
+  vec3 L1=normalize(vec3(-.55,.85,.75));vec3 L2=normalize(vec3(.9,.15,.45));vec3 L3=normalize(vec3(0.,-.6,.5));
+  float d1=clamp((dot(N,L1)+.3)/1.3,0.,1.);float d2=max(dot(N,L2),0.);float d3=max(dot(N,L3),0.);
+  vec3 amb=mix(vec3(.58,.66,.86),vec3(.90,.94,1.),N.y*.5+.5)*.56;
+  vec3 light=amb+vec3(1.,.99,.96)*d1*.74+vec3(.55,.75,1.)*d2*.28+vec3(.5,.65,1.)*d3*.14;
+  vec3 col=u_col*light;
+  vec3 H=normalize(L1+V);
+  float sp=pow(max(dot(N,H),0.),u_shine)*u_spec;
+  vec3 H2=normalize(L2+V);sp+=pow(max(dot(N,H2),0.),u_shine*.6)*u_spec*.3;
+  float fr=pow(1.-max(dot(N,V),0.),2.4);
+  col+=vec3(sp);
+  col=mix(col,vec3(.66,.82,1.),clamp(fr*u_rim,0.,1.));
+  if(u_eye>.5){
+    float r=clamp(v_uv.y,0.,1.);
+    vec3 core=mix(u_emis,vec3(1.),.82);
+    col=mix(core,u_emis*.92,smoothstep(.05,.92,r))*u_glow;
+  }else col+=u_emis;
+  gl_FragColor=vec4(col,1.);
+}`;
+  const SVS = `attribute vec2 a_q;uniform mat4 u_mvp;varying vec2 v_q;void main(){v_q=a_q;gl_Position=u_mvp*vec4(a_q,0.,1.);}`;
+  const SFS = `precision mediump float;uniform vec3 u_col;uniform float u_a;uniform float u_pow;varying vec2 v_q;
+void main(){float d=length(v_q);float a=pow(clamp(1.-d,0.,1.),u_pow)*u_a;gl_FragColor=vec4(u_col*a,a);}`;
+
+  /* ---------- the shared renderer ---------- */
+  const R = { ok: null, canvas: null, gl: null, bufs: new Map(), w: 0, h: 0 };
+  function initGL() {
+    if (R.ok !== null) return R.ok;
+    try {
+      R.canvas = document.createElement('canvas'); R.canvas.width = 400; R.canvas.height = 440;
+      const gl = R.canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: true, depth: true });
+      if (!gl) throw new Error('no webgl');
+      const mk = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+      const prog = (v, f) => { const p = gl.createProgram(); gl.attachShader(p, mk(gl.VERTEX_SHADER, v)); gl.attachShader(p, mk(gl.FRAGMENT_SHADER, f)); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; };
+      const uni = (p, names) => Object.fromEntries(names.map(n => [n, gl.getUniformLocation(p, n)]));
+      R.gl = gl;
+      R.pm = prog(VS, FS); R.um = uni(R.pm, ['u_vp', 'u_model', 'u_nmat', 'u_col', 'u_emis', 'u_cam', 'u_spec', 'u_shine', 'u_rim', 'u_eye', 'u_glow', 'u_out', 'u_flat', 'u_ink']);
+      R.ps = prog(SVS, SFS); R.us = uni(R.ps, ['u_mvp', 'u_col', 'u_a', 'u_pow']);
+      R.quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, R.quad);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      R.ok = true;
+    } catch (err) { console.warn('KOIOS 3D unavailable, using the flat figure.', err); R.ok = false; }
+    return R.ok;
+  }
+  function upload(geo) {
+    let b = R.bufs.get(geo); if (b) return b;
+    const gl = R.gl, mkb = (data, type = gl.ARRAY_BUFFER) => { const x = gl.createBuffer(); gl.bindBuffer(type, x); gl.bufferData(type, data, gl.STATIC_DRAW); return x; };
+    b = { pos: mkb(geo.pos), nor: mkb(geo.nor), uv: mkb(geo.uv), idx: mkb(geo.idx, gl.ELEMENT_ARRAY_BUFFER), n: geo.n };
+    R.bufs.set(geo, b); return b;
+  }
+  const shown = n => { while (n) { if (!n.on) return false; n = n.parent; } return true; };
+  const CAM_Z = 4.75, CAM_Y = 0.06;
+  function resize(w, h) { if (R.w !== w || R.h !== h) { R.canvas.width = w; R.canvas.height = h; R.w = w; R.h = h; } }
+  function render(fig) {
+    const gl = R.gl; resize(fig.W, fig.H);
+    gl.viewport(0, 0, fig.W, fig.H);
+    gl.clearColor(0, 0, 0, 0); gl.clearDepth(1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    const proj = persp(28 * PI / 180, fig.W / fig.H, .5, 20), view = trs([0, -CAM_Y, -CAM_Z], [0, 0, 0], [1, 1, 1]), vp = mmul(proj, view);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    // ground shadow
+    gl.disable(gl.DEPTH_TEST); gl.useProgram(R.ps);
+    const sprite = (x, y, sx, sy, col, a, pw) => {
+      gl.bindBuffer(gl.ARRAY_BUFFER, R.quad);
+      const loc = gl.getAttribLocation(R.ps, 'a_q'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      gl.uniformMatrix4fv(R.us.u_mvp, false, mmul(vp, trs([x, y, 0.2], [0, 0, 0], [sx, sy, 1])));
+      gl.uniform3fv(R.us.u_col, col); gl.uniform1f(R.us.u_a, a); gl.uniform1f(R.us.u_pow, pw);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+    const sh = fig.shadow;
+    sprite(0, -1.0, 0.56 * sh.s, 0.09 * sh.s, [.04, .12, .42], .30 * sh.a, 1.6);
+    // meshes: ink outline first (inverted hull), then the shaded fill
+    gl.enable(gl.DEPTH_TEST); gl.useProgram(R.pm);
+    const U = R.um, aPos = gl.getAttribLocation(R.pm, 'a_pos'), aNor = gl.getAttribLocation(R.pm, 'a_nor'), aUv = gl.getAttribLocation(R.pm, 'a_uv');
+    gl.uniform3f(U.u_cam, 0, CAM_Y, CAM_Z); gl.uniformMatrix4fv(U.u_vp, false, vp);
+    gl.uniform3f(U.u_ink, .05, .09, .24);
+    const bind = (m, w) => {
+      const b = upload(m.geo);
+      gl.bindBuffer(gl.ARRAY_BUFFER, b.pos); gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 3, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, b.nor); gl.enableVertexAttribArray(aNor); gl.vertexAttribPointer(aNor, 3, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, b.uv); gl.enableVertexAttribArray(aUv); gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.idx);
+      gl.uniformMatrix4fv(U.u_model, false, w); gl.uniformMatrix3fv(U.u_nmat, false, cofactor3(w));
+      return b;
+    };
+    const ink = .0125 * clamp(400 / fig.W, 1, 2.4);
+    gl.enable(gl.CULL_FACE); gl.cullFace(gl.FRONT); gl.uniform1f(U.u_flat, 1);
+    for (const m of fig.meshes) {
+      if (!m.vis || !shown(m.node) || !m.ol) continue;
+      const b = bind(m, m.node.world); gl.uniform1f(U.u_out, ink * (m.ol === true ? 1 : m.ol));
+      gl.drawElements(gl.TRIANGLES, b.n, gl.UNSIGNED_SHORT, 0);
+    }
+    gl.disable(gl.CULL_FACE); gl.uniform1f(U.u_flat, 0); gl.uniform1f(U.u_out, 0);
+    for (const m of fig.meshes) {
+      if (!m.vis || !shown(m.node)) continue;
+      const b = bind(m, m.node.world);
+      if (m.dec) { gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(-2, -2); } else gl.disable(gl.POLYGON_OFFSET_FILL);
+      const c = m.col(), em = m.emis ? m.emis() : [0, 0, 0];
+      gl.uniform3fv(U.u_col, c); gl.uniform3fv(U.u_emis, em);
+      gl.uniform1f(U.u_spec, m.spec); gl.uniform1f(U.u_shine, m.shine); gl.uniform1f(U.u_rim, m.rim);
+      gl.uniform1f(U.u_eye, m.eye ? 1 : 0); gl.uniform1f(U.u_glow, m.glow ? m.glow() : 1);
+      gl.drawElements(gl.TRIANGLES, b.n, gl.UNSIGNED_SHORT, 0);
+    }
+    gl.disable(gl.POLYGON_OFFSET_FILL);
+    // soft eye glow (only while the visor faces the viewer)
+    gl.disable(gl.DEPTH_TEST); gl.useProgram(R.ps);
+    const face = fig.facing;
+    if (face > 0.05) for (const e of fig.eyeNodes) {
+      const w = e.world, ec = fig.skinNow.eye;
+      sprite(w[12], w[13], 0.27 * fig.glowK, 0.21 * fig.glowK, ec, 0.40 * face * fig.glowK, 1.8);
+    }
+  }
+
+  /* ---------- skins ---------- */
+  const SKINS = {
+    blue: { body: [.17, .41, 1], stripe: [.17, .40, .98], eye: [.24, .86, 1], chev: [.90, .95, 1] },
+    ice: { body: [.54, .72, 1], stripe: [.44, .63, 1], eye: [.30, .88, 1], chev: [.96,.98,1] },
+    aqua: { body: [.10, .72, .90], stripe: [.10, .66, .86], eye: [.45, .95, 1], chev: [.92,.99,1] },
+    peri: { body: [.50, .56, .96], stripe: [.45, .52, .94], eye: [.30, .86, 1], chev: [.94,.95,1] },
+    indigo: { body: [.30, .34, .91], stripe: [.28, .32, .88], eye: [.30, .86, 1], chev: [.92,.94,1] },
+    pearl: { body: [.93, .95, .99], stripe: [.60, .72, .95], eye: [.24, .86, 1], chev: [.35,.58,.96] }
+  };
+  const MOODS = {
+    neutral: { esx: 1, esy: 1, slant: .05, lift: 0, ear: .10, roll: 0, glow: 1, bx: 0, by: 0 },
+    happy: { esx: 1.04, esy: .6, slant: .2, lift: .012, ear: .12, roll: .05, glow: 1.18, bx: 0, by: .05 },
+    thinking: { esx: .96, esy: .85, slant: .02, lift: .01, ear: .04, roll: .14, glow: .92, bx: -.45, by: .55 },
+    alert: { esx: .96, esy: 1.3, slant: 0, lift: .014, ear: -.14, roll: 0, glow: 1.4, bx: 0, by: 0 },
+    working: { esx: 1, esy: .75, slant: -.08, lift: -.004, ear: .06, roll: 0, glow: 1.12, bx: 0, by: -.35 },
+    surprised: { esx: 1.06, esy: 1.4, slant: 0, lift: .02, ear: -.16, roll: 0, glow: 1.45, bx: 0, by: 0 },
+    sleepy: { esx: 1, esy: .16, slant: -.3, lift: -.02, ear: .22, roll: .1, glow: .5, bx: 0, by: -.2 }
+  };
+  const MOOD_K = Object.keys(MOODS.neutral);
+
+  /* ---------- clips: each gets progress k (0..1) and writes offsets into fx ---------- */
+  const CLIPS = {
+    spin: { dur: 1.25, fn: (k, f) => { const a = ease(k) * TAU; f.B = a; f.H = a; f.y = Math.sin(k * PI) * .16; f.ear = Math.sin(k * PI) * .5; f.hands = Math.sin(k * PI) * .6; } },
+    twirl: { dur: 2.3, fn: (k, f) => { const a = ease(k) * TAU * 2; f.B = a; f.H = a; f.y = Math.sin(k * PI) * .3; f.ear = Math.sin(k * PI) * .75; f.hands = Math.sin(k * PI); f.rz = Math.sin(k * TAU * 2) * .07; } },
+    turn: {
+      dur: 4.8, fn: (k, f) => {
+        const t1 = ease(seg(k, 0, .2)), t2 = ease(seg(k, .34, .54)), t3 = ease(seg(k, .8, 1));
+        f.B = PI * t1 + PI * t3; f.H = PI * t1 + PI * t2;                 // turn away, look back over the shoulder, then turn round
+        f.y = Math.sin(seg(k, 0, .2) * PI) * .05 + Math.sin(seg(k, .8, 1) * PI) * .05;
+        f.ear = Math.sin(seg(k, .34, .54) * PI) * .4; f.wave = ease(seg(k, .56, .62)) * (1 - ease(seg(k, .74, .8)));
+        f.hr = Math.sin(seg(k, .34, .54) * PI) * .12;
+      }
+    },
+    flip: { dur: 1.5, fn: (k, f) => { f.rx = ease(seg(k, .12, .88)) * TAU; f.y = Math.sin(seg(k, .1, .9) * PI) * .34; const q = 1 - Math.abs(k - .5) * 2; f.sq = k < .12 ? k / .12 * .08 : (k > .9 ? (1 - k) / .1 * .06 : 0); f.hands = Math.sin(k * PI); } },
+    nod: { dur: 1.2, fn: (k, f) => { f.hp = Math.sin(k * TAU * 2) * .26 * (1 - k * .4); f.ear = .12 * Math.sin(k * PI); } },
+    shake: { dur: 1.1, fn: (k, f) => { f.Hrel = Math.sin(k * TAU * 3) * .42 * (1 - k * .5); } },
+    hop: { dur: .6, fn: (k, f) => { f.y = Math.sin(k * PI) * .24; f.sq = k < .18 ? -Math.sin(k / .18 * PI / 2) * .06 : (k > .84 ? Math.sin((k - .84) / .16 * PI) * .05 : 0); f.ear = Math.sin(k * PI) * .3; } },
+    dance: { dur: 2.6, fn: (k, f) => { const w = Math.sin(k * TAU * 3); f.B = w * .55; f.H = w * .4; f.rz = w * .13; f.y = Math.abs(w) * .1; f.ear = .25 + w * .15; f.hl = Math.max(0, w); f.hrr = Math.max(0, -w); } },
+    bow: { dur: 1.6, fn: (k, f) => { const b = Math.sin(seg(k, 0, 1) * PI); f.rx = b * .55; f.hp = b * .25; f.y = -b * .05; } }
+  };
+
+  /* ---------- the figure ---------- */
+  class Koios3D {
+    static supported() { return initGL(); }
+    constructor(host, opts = {}) {
+      this.host = host; this.W = opts.w || 400; this.H = Math.round(this.W * 1.1);
+      this.canvas = document.createElement('canvas'); this.canvas.width = this.W; this.canvas.height = this.H; this.canvas.className = 'koios3d';
+      this.canvas.setAttribute('role', 'img'); this.canvas.setAttribute('aria-label', 'KOIOS, a floating pearl and blue robot with a dark visor, glowing eyes, tall ears and a small body');
+      host.innerHTML = ''; host.append(this.canvas); this.ctx = this.canvas.getContext('2d');
+      this.svg = this.canvas;                       // old name some pages still read
+      this.mood = 'neutral'; this.pose = 'rest'; this.busy = false; this.timers = new Set();
+      this.st = Object.fromEntries(MOOD_K.map(k => [k, MOODS.neutral[k]]));
+      this.look = [0, 0]; this.lookS = [0, 0]; this.leanT = 0; this.leanS = 0; this.lap = 0; this.waveA = 0; this.handsK = 0;
+      this.t = Math.random() * 10; this.clip = null; this.blink = 0; this.nextBlink = 1.5 + Math.random() * 2;
+      this.orb = [0, 0]; this.motion = 1; this.glowK = 1; this.facing = 1; this.shadow = { s: 1, a: 1 };
+      this.skin = SKINS.blue; this.skinNow = { body: [...SKINS.blue.body], stripe: [...SKINS.blue.stripe], eye: [...SKINS.blue.eye], chev: [...SKINS.blue.chev] };
+      this.static = !!opts.static; this.fps = opts.fps || 0; this._acc = 0; this.dirty = true;
+      this.build();
+      if (opts.skin) this.setSkin(opts.skin);
+      if (opts.mood) this.setMood(opts.mood);
+      if (opts.follow !== false) this.startFollow();
+      this.tick(0.016, true);
+      Koios3D.live.add(this); Koios3D.run();
+    }
+
+    build() {
+      const geo = (name, ...a) => { const key = JSON.stringify([name, ...a]); GEO._c = GEO._c || {}; return GEO._c[key] || (GEO._c[key] = GEO[name](...a)); };
+      this.meshes = [];
+      const mesh = (parent, geoObj, o) => {
+        const node = new Node(parent, o.pos, o.sc); node.on = true; if (o.rot) node.rot = o.rot;
+        const m = Object.assign({ geo: geoObj, node, vis: true, spec: .3, shine: 30, rim: 0 }, o.m || {});
+        if (!m.col) m.col = () => [1, 1, 1];
+        this.meshes.push(m); return { node, m };
+      };
+      const PEARL = () => [.95, .965, .99], GLASS = () => [.055, .075, .15], HAND = () => [.09, .12, .25];
+      const STRIPE = () => this.skinNow.stripe, BODY = () => this.skinNow.body;
+      const { ax, ay, az } = HEAD;
+      const root = this.root = new Node(null); root.on = true;
+      this.torso = new Node(root, [0, 0, 0]); this.torso.on = true;
+      this.head = new Node(root, [0, .35, 0]); this.head.on = true;
+
+      /* ---- head: a soft rounded helmet; the visor and the eyes are paint on its surface, so the face does not stick out ---- */
+      mesh(this.head, geo('sq', HEAD.e1, HEAD.e2), { pos: [0, 0, 0], sc: [ax, ay, az], m: { col: PEARL, spec: .8, shine: 70, rim: .4, ol: true } });
+      const visor = [[-.43, .02], [-.30, .075], [0, .09], [.30, .075], [.43, .02], [.43, -.12], [.34, -.29], [.13, -.395], [0, -.42], [-.13, -.395], [-.34, -.29], [-.43, -.12]];
+      mesh(this.head, decalGeo(geo, 'visor', () => decal(visor, headZ, .004, 3, 0, -.17)), { pos: [0, 0, 0], m: { col: GLASS, spec: 1.3, shine: 150, rim: .06, dec: true } });
+      // forehead: three blue dashes on an arc, like the reference
+      [[28, 62], [76, 104], [118, 152]].forEach(([a0, a1]) => {
+        const R0 = .19, R1 = .225, cx = 0, cy = .1, pts = [];
+        for (let k = 0; k <= 6; k++) { const a = (a0 + (a1 - a0) * k / 6) * PI / 180; pts.push([cx + R1 * Math.cos(a), cy + R1 * Math.sin(a) * 1.15]); }
+        for (let k = 6; k >= 0; k--) { const a = (a0 + (a1 - a0) * k / 6) * PI / 180; pts.push([cx + R0 * Math.cos(a), cy + R0 * Math.sin(a) * 1.15]); }
+        mesh(this.head, decalGeo(geo, 'dash' + a0, () => { const mx = pts.reduce((a, q) => a + q[0], 0) / pts.length, my = pts.reduce((a, q) => a + q[1], 0) / pts.length; return decal(pts, headZ, .004, 1, mx, my, 24, 2); }), { pos: [0, 0, 0], m: { col: STRIPE, spec: .6, shine: 60, rim: .1, dec: true } });
+      });
+      // eyes: a rounded almond, perfectly symmetrical
+      const almond = [], EW = .118, EH = .074;
+      for (let k = 0; k < 30; k++) { const t = k / 30 * TAU, c = Math.cos(t), sn = Math.sin(t); almond.push([EW * c, EH * sn * Math.pow(Math.max(0, 1 - Math.pow(Math.abs(c), 2.3)), .55)]); }
+      this.eyeNodes = [];
+      this.eyes = [-1, 1].map(side => {
+        const ex = side * .185, ey = -.145, ez = headZ(ex, ey);
+        const pivot = new Node(this.head, [ex, ey, ez]); pivot.on = true;
+        const eg = decalGeo(geo, 'eye' + side, () => decal(almond, (x, y) => headZ(ex + x, ey + y) - ez, .006, 0, 0, 0, 48, 5));
+        const e = mesh(pivot, eg, { pos: [0, 0, 0], m: { eye: true, col: () => [1, 1, 1], emis: () => this.skinNow.eye, glow: () => this.glowNow || 1, spec: 0, shine: 1, dec: true } });
+        this.eyeNodes.push(e.node); return { pivot, side, ex, ey };
+      });
+      // ear discs on the sides of the head
+      [-1, 1].forEach(side => {
+        mesh(this.head, geo('ball'), { pos: [side * .478, .06, -.04], sc: [.05, .135, .135], m: { col: PEARL, spec: .8, shine: 60, rim: .3, ol: .8 } });
+        mesh(this.head, geo('torus', 1, .14), { pos: [side * .515, .06, -.04], rot: [0, 0, PI / 2], sc: [.085, .05, .085], m: { col: STRIPE, spec: .6, shine: 50, rim: .2 } });
+      });
+      // ears: slim blades that start at either side of the head (from the ear disc) and sweep up and out, with two blue bands
+      this.ears = [-1, 1].map(side => {
+        const piv = new Node(this.head, [side * .415, .115, -.035]); piv.on = true;
+        const L = .34, wx = .066, wz = .042, bx = side * .075, bz = -.045;
+        mesh(piv, geo('tube', L, wx, wz, bx, bz, { tp: 2.4, taper: .1 }), { pos: [0, 0, 0], m: { col: PEARL, spec: .85, shine: 60, rim: .4, ol: true } });
+        [[.34, .47], [.62, .75]].forEach(([s0, s1]) => mesh(piv, geo('tube', L, wx, wz, bx, bz, { tp: 2.4, taper: .1, s0, s1, grow: 1.04 }), { pos: [0, 0, 0], m: { col: STRIPE, spec: .6, shine: 50, rim: .3 } }));
+        return { piv, side };
+      });
+      // seam on the back of the head (so the turn-around has something to see)
+      mesh(this.head, geo('ball'), { pos: [0, .0, -.405], sc: [.014, .24, .028], m: { col: GLASS, spec: .6, shine: 50 } });
+      mesh(this.head, geo('ball'), { pos: [0, .26, -.37], sc: [.11, .02, .03], m: { col: STRIPE, spec: .6, shine: 50 } });
+
+      /* ---- body: a heater shield with an arrow, close under the head ---- */
+      const TW = .3, TH = .37, TY = -.545;
+      mesh(this.torso, geo('shield2'), { pos: [0, TY, 0], sc: [TW, TH, TW], m: { col: PEARL, spec: .85, shine: 70, rim: .4, ol: true } });
+      const arrow = [[0, .36], [.5, -.56], [0, -.2], [-.5, -.56]];
+      mesh(this.torso, decalGeo(geo, 'arrow', () => decal(arrow, shieldZ, .012, 2, 0, .0)), { pos: [0, TY, 0], sc: [TW, TH, TW], m: { col: STRIPE, spec: .7, shine: 60, rim: .2, dec: true } });
+      // blue banding across the chest, like the ears and arms
+      const shW = y => shieldW(Math.acos(clamp(y, -.999, .999)))[0];
+      [[.64, .78], [.47, .55]].forEach(([y0, y1], bi) => {
+        const pts = [], N = 8;
+        for (let i = 0; i <= N; i++) { const y = y0 + (y1 - y0) * i / N; pts.push([shW(y) * .9, y]); }
+        for (let i = N; i >= 0; i--) { const y = y0 + (y1 - y0) * i / N; pts.push([-shW(y) * .9, y]); }
+        mesh(this.torso, decalGeo(geo, 'tband' + bi, () => decal(pts, shieldZ, .009, 0, 0, (y0 + y1) / 2, 60, 3)), { pos: [0, TY, 0], sc: [TW, TH, TW], m: { col: STRIPE, spec: .6, shine: 50, rim: .2, dec: true } });
+      });
+      mesh(this.torso, geo('ball'), { pos: [0, TY + .06, -.158], sc: [.05, .14, .02], m: { col: PEARL, spec: .7, shine: 50, rim: .3 } });   // back plate
+
+      /* ---- arms: short pearl plates close to the body, dark hands; each hangs from a shoulder pivot ---- */
+      this.hands = [-1, 1].map(side => {
+        const sh = new Node(this.torso, [side * .322, -.25, .0]); sh.on = true;
+        mesh(sh, geo('tube', -.27, .06, .05, 0, 0, { sym: true, tp: 2.4, taper: .12 }), { pos: [0, -.0, 0], m: { col: PEARL, spec: .85, shine: 60, rim: .4, ol: true } });
+        mesh(sh, geo('tube', -.27, .06, .05, 0, 0, { sym: true, tp: 2.4, taper: .12, s0: .3, s1: .44, grow: 1.04 }), { pos: [0, 0, 0], m: { col: STRIPE, spec: .6, shine: 50, rim: .3 } });
+        mesh(sh, geo('tube', -.27, .06, .05, 0, 0, { sym: true, tp: 2.4, taper: .12, s0: .74, s1: .86, grow: 1.04 }), { pos: [0, 0, 0], m: { col: STRIPE, spec: .6, shine: 50, rim: .3 } });
+        return { n: sh, side };
+      });
+
+      // laptop
+      this.laptop = new Node(this.torso, [0, -.5, .4]); this.laptop.on = false;
+      mesh(this.laptop, geo('sq', .3, .3), { pos: [0, 0, 0], sc: [.23, .016, .15], m: { col: PEARL, spec: .8, shine: 60, rim: .3, ol: true } });
+      const hinge = this.screenN = new Node(this.laptop, [0, .008, -.15]); hinge.on = true; hinge.rot = [-.28, 0, 0];
+      mesh(hinge, geo('sq', .3, .3), { pos: [0, .14, 0], sc: [.23, .15, .014], m: { col: PEARL, spec: .8, shine: 60, rim: .3, ol: true } });
+      mesh(hinge, geo('rect'), { pos: [0, .14, .0165], sc: [.2, .125, 1], m: { col: () => [.08, .16, .42], emis: () => [.05, .18, .45], spec: .2, shine: 20 } });
+      this.bars = [0, 1, 2, 3].map(i => {
+        const n = new Node(hinge, [-.14, .2 - i * .052, .0185], [.05, .008, 1]); n.on = true;
+        mesh(n, geo('rect'), { pos: [1, 0, 0], sc: [1, 1, 1], m: { col: () => [.5, .85, 1], emis: () => [.35, .75, 1], spec: 0, shine: 1 } });
+        return n;
+      });
+    }
+
+    /* ----- API ----- */
+    setSkin(s) { this.skin = SKINS[s] || SKINS.blue; this.dirty = true; }
+    setTint(hex) {
+      if (!hex) { this.skin = SKINS.blue; this.dirty = true; return; }
+      const n = parseInt(hex.slice(1), 16), c = [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255];
+      const eye = c.map(v => Math.min(1, v * .55 + .5));
+      this.skin = { body: SKINS.blue.body, stripe: c, eye, chev: SKINS.blue.chev }; this.dirty = true;
+    }
+    setMood(m) { if (MOODS[m]) { this.mood = m; this.dirty = true; } }
+    setPose(p) { this.pose = p; this.dirty = true; }
+    setMotion(k) { this.motion = k; }
+    setOrbit(y, p) { this.orb[0] = y; this.orb[1] = clamp(p, -.6, .6); }
+    later(fn, ms) { const t = setTimeout(() => { this.timers.delete(t); fn(); }, ms); this.timers.add(t); return t; }
+    wait(ms) { return new Promise(res => this.later(res, ms)); }
+    lookAt(dx, dy) { this.look = [clamp(dx, -1, 1), clamp(dy, -1, 1)]; this.dirty = true; }
+    lean(deg) { this.leanT = deg; }
+    startFollow() {
+      this._mv = e => {
+        if (this.mood === 'thinking' || this.mood === 'sleepy' || this.clip) return;
+        const r = this.canvas.getBoundingClientRect(); if (!r.width) return;
+        const cx = r.left + r.width / 2, cy = r.top + r.height * 0.3;
+        this.look = [clamp((e.clientX - cx) / (innerWidth * .45), -1, 1), clamp((e.clientY - cy) / (innerHeight * .45), -1, 1)];
+      };
+      addEventListener('pointermove', this._mv, { passive: true });
+    }
+    clipPlay(name) {
+      const c = CLIPS[name];
+      return new Promise(res => {
+        if (this.motion === 0) { this.later(res, 60); return; }
+        if (this.clip) this.clip.res();
+        this.clip = { c, t0: this.t, res: () => { this.clip = null; res(); } };
+      });
+    }
+    async play(name) {
+      if (CLIPS[name]) return this.clipPlay(name);
+      if (name === 'laptop') { const prev = this.mood; this.setMood('working'); this.setPose('laptop'); await this.wait(6500); this.setPose('laptop-out'); await this.wait(550); this.setPose('rest'); this.setMood(prev); }
+      else if (name === 'wave') { const prev = this.mood; this.setMood('happy'); this.setPose('wave'); await this.wait(1900); this.setPose('rest'); this.setMood(prev); }
+      else if (name === 'look') { this.lookAt(-1, .2); await this.wait(650); this.lookAt(1, -.2); await this.wait(750); this.lookAt(0, 0); }
+    }
+    stop() { Koios3D.live.delete(this); }
+
+    /* ----- per frame ----- */
+    tick(dt, force) {
+      if (!force) {
+        if (!this.host.isConnected || !this.host.offsetParent && getComputedStyle(this.host).position !== 'fixed') return;
+        if (this.static && !this.dirty && !this.clip) return;
+        if (this.fps) { this._acc += dt; if (this._acc < 1 / this.fps) return; dt = this._acc; this._acc = 0; }
+      }
+      this.update(dt); this.draw(); this.dirty = false;
+    }
+    update(dt) {
+      this.t += dt; const t = this.t, mo = this.motion, s = this.st, tgt = MOODS[this.mood];
+      for (const k of MOOD_K) s[k] = damp(s[k], tgt[k], 9, dt);
+      // look (pointer + mood bias)
+      const lx = clamp(this.look[0] + tgt.bx, -1, 1), ly = clamp(this.look[1] + tgt.by, -1, 1);
+      this.lookS[0] = damp(this.lookS[0], lx, 7, dt); this.lookS[1] = damp(this.lookS[1], ly, 7, dt);
+      this.leanS = damp(this.leanS, this.leanT, 6, dt);
+      // blink
+      this.nextBlink -= dt;
+      if (this.nextBlink <= 0) { this.blink = 1; this.nextBlink = 3 + Math.random() * 3; }
+      if (this.blink > 0) this.blink = Math.max(0, this.blink - dt / .16);
+      const bl = 1 - Math.sin(this.blink * PI) * .92;
+      // clip
+      const fx = { B: 0, H: 0, Hrel: 0, hp: 0, hr: 0, rx: 0, rz: 0, y: 0, sq: 0, ear: 0, hands: 0, wave: 0, hl: 0, hrr: 0 };
+      if (this.clip) {
+        const k = (t - this.clip.t0) / this.clip.c.dur;
+        if (k >= 1) this.clip.res(); else this.clip.c.fn(k, fx);
+      }
+      // pose amounts
+      this.lap = damp(this.lap, this.pose === 'laptop' ? 1 : 0, 6, dt);
+      const waveT = (this.pose === 'wave' ? 1 : 0) + fx.wave; this.waveA = damp(this.waveA, Math.min(1, waveT), 9, dt);
+      // root
+      const bob = Math.sin(t * 1.7) * .03 * mo, headBob = Math.sin(t * 1.7 + .9) * .014 * mo;
+      this.root.pos[1] = bob + fx.y;
+      this.root.rot = [fx.rx + this.orb[1], this.orb[0], -this.leanS * .02 + fx.rz];
+      this.root.sc = [1 + fx.sq, 1 - fx.sq, 1 + fx.sq];
+      // yaw: pointer look turns the head more than the body
+      const yawLook = this.lookS[0] * .52, pitchLook = this.lookS[1] * .3;
+      this.torso.rot = [0, fx.B + yawLook * .3, Math.sin(t * 1.2) * .012 * mo];
+      this.head.pos[1] = .35 + headBob;
+      this.head.rot = [pitchLook + fx.hp, fx.H + yawLook + fx.Hrel, s.roll + fx.hr + Math.sin(t * 1.1) * .016 * mo];
+      // eyes
+      this.eyes.forEach(({ pivot, side, ex, ey }) => {
+        const nx = ex + this.lookS[0] * .03, ny = ey + s.lift - this.lookS[1] * .02;
+        pivot.pos[0] = nx; pivot.pos[1] = ny; pivot.pos[2] = headZ(nx, ny) - .0;
+        pivot.rot = [0, 0, side * s.slant];
+        pivot.sc = [s.esx, Math.max(.04, s.esy * bl), 1];
+      });
+      this.glowNow = s.glow; this.glowK = clamp(s.glow, .4, 1.4);
+      // ears: soft, they lag and sway
+      this.ears.forEach(({ piv, side }) => {
+        const sway = Math.sin(t * 1.3 + (side > 0 ? 1.4 : 0)) * .05 * mo;
+        piv.rot = [-.06 + Math.sin(t * .9 + side) * .03 * mo, 0, -side * (s.ear + .46 + fx.ear + sway)];
+      });
+      // arms: hang from the shoulders close to the body; raise, wave, reach for the laptop
+      const wv = this.waveA, lp = this.lap, hk = fx.hands;
+      this.hands.forEach(({ n, side }) => {
+        let th = .05 + hk * .75 + Math.sin(t * 1.7 + (side > 0 ? 0 : 1)) * .018 * mo;     // swing out in the plane of the body
+        if (side < 0) th += fx.hl * 1.9; else th += fx.hrr * 1.9;
+        if (side > 0) th += wv * (2.45 + Math.sin(t * 9) * .22);
+        let fw = 0;                                                                         // tilt forward
+        th = th * (1 - lp) - .3 * lp; fw = -lp * 1.05 + Math.sin(t * 17 + side) * .05 * lp;
+        n.rot = [fw, 0, side * th];
+        n.pos = [side * (.322 - lp * .04), -.25 - lp * .02, lp * .17];
+      });
+      // laptop pops out
+      const lk = clamp(this.lap, 0, 1);
+      this.laptop.on = lk > .02; const ls = lk < .98 ? Math.max(.001, outBack(lk)) : 1;
+      this.laptop.sc = [ls, ls, ls]; this.laptop.pos = [0, -.5 + (1 - lk) * .08, .42 - (1 - lk) * .12];
+      this.bars.forEach((b, i) => { b.sc = [.05 + .06 * (.5 + .5 * Math.sin(t * 3 + i * 1.9)) + .02 * i * (i % 2), .008, 1]; });
+      // shadow follows the hop
+      const hy = this.root.pos[1];
+      this.shadow.s = clamp(1 - hy * .9, .55, 1.15); this.shadow.a = clamp(1 - hy * 1.6, .25, 1);
+      // skin blend
+      for (const k of ['body', 'stripe', 'eye', 'chev']) for (let i = 0; i < 3; i++) this.skinNow[k][i] = damp(this.skinNow[k][i], this.skin[k][i], 10, dt);
+      this.root.update(null);
+      // does the visor face the viewer?
+      const hw = this.head.world, fz = hw[10] / (Math.hypot(hw[8], hw[9], hw[10]) || 1);
+      this.facing = clamp(fz * 1.4 - .1, 0, 1) * (Math.cos(this.root.rot[0]) > 0 ? 1 : 0.3);
+    }
+    draw() {
+      if (!initGL()) return;
+      render(this);
+      this.ctx.clearRect(0, 0, this.W, this.H);
+      this.ctx.drawImage(R.canvas, 0, 0);
+    }
+  }
+  Koios3D.live = new Set();
+  Koios3D.idleActs = ['spin', 'look', 'laptop', 'wave', 'turn', 'twirl', 'dance', 'flip', 'nod', 'look', 'spin', 'laptop'];
+  Koios3D.prototype.idleActs = Koios3D.idleActs;
+  let raf = 0, last = 0;
+  Koios3D.run = () => {
+    if (raf) return;
+    const frame = now => {
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
+      if (document.hidden) return;
+      for (const f of Koios3D.live) f.tick(dt);
+    };
+    raf = requestAnimationFrame(frame);
+  };
+  return { Koios3D, SKINS };
+})();
+const Koios3D = K3.Koios3D;
+
+/* ---------- KOIOS character controller ---------- */
+const KOIOS_SVG = document.getElementById('koios-svg-template').innerHTML;
+let koiosUid = 0;
+
+class KoiosFigure {
+  constructor(host, opts = {}) {
+    this.host = host;
+    const uid = 'u' + (++koiosUid);
+    host.innerHTML = KOIOS_SVG.replace(/__U__/g, uid);
+    this.svg = host.querySelector('svg');
+    this.hop = this.svg.querySelector('.k-hop');
+    this.mood = 'neutral';
+    this.busy = false;
+    this.timers = new Set();
+    if (opts.skin) this.setSkin(opts.skin);
+    if (opts.mood) this.setMood(opts.mood);
+    if (opts.blink !== false) this.startBlink();
+    if (opts.follow !== false) this.startFollow();
+  }
+  setSkin(s) { if (s === 'blue') this.svg.removeAttribute('data-skin'); else this.svg.setAttribute('data-skin', s); }
+  setMood(m) { this.mood = m; this.svg.setAttribute('data-mood', m); }
+  setPose(p) { this.svg.setAttribute('data-pose', p); }
+  later(fn, ms) { const t = setTimeout(() => { this.timers.delete(t); fn(); }, ms); this.timers.add(t); return t; }
+  wait(ms) { return new Promise(res => this.later(res, ms)); }
+
+  startBlink() {
+    const tick = () => {
+      this.svg.classList.add('blink');
+      this.later(() => this.svg.classList.remove('blink'), 150);
+      this.later(tick, 3000 + Math.random() * 3000);
+    };
+    this.later(tick, 1500 + Math.random() * 2000);
+  }
+  startFollow() {
+    this._mv = e => {
+      if (this.mood === 'thinking' || this.mood === 'sleepy') return;
+      const r = this.svg.getBoundingClientRect();
+      if (!r.width) return;
+      const cx = r.left + r.width / 2, cy = r.top + r.height * 0.28;
+      const dx = Math.max(-1, Math.min(1, (e.clientX - cx) / (innerWidth * 0.45)));
+      const dy = Math.max(-1, Math.min(1, (e.clientY - cy) / (innerHeight * 0.45)));
+      this.svg.style.setProperty('--lx', dx.toFixed(2));
+      this.svg.style.setProperty('--ly', dy.toFixed(2));
+    };
+    addEventListener('pointermove', this._mv, { passive: true });
+  }
+  lookAt(dx, dy) { this.svg.style.setProperty('--lx', dx); this.svg.style.setProperty('--ly', dy); }
+  lean(deg) { this.svg.style.setProperty('--lean', deg); }
+
+  /* one-off actions. each resolves when finished */
+  async play(name) {
+    const s = this.svg;
+    if (name === 'spin') { s.classList.add('spin'); await this.wait(1250); s.classList.remove('spin'); }
+    else if (name === 'laptop') {
+      const prev = this.mood; this.setMood('working'); this.setPose('laptop');
+      await this.wait(6500);
+      this.setPose('laptop-out'); await this.wait(500);
+      this.setPose('rest'); this.setMood(prev);
+    }
+    else if (name === 'wave') {
+      const prev = this.mood; this.setMood('happy'); this.setPose('wave');
+      await this.wait(1900); this.setPose('rest'); this.setMood(prev);
+    }
+    else if (name === 'look') {
+      this.lookAt(-1, 0.2); await this.wait(650);
+      this.lookAt(1, -0.2); await this.wait(750);
+      this.lookAt(0, 0);
+    }
+    else if (name === 'hop') {
+      this.hop.classList.remove('hop'); void this.hop.getBoundingClientRect(); this.hop.classList.add('hop');
+      await this.wait(560); this.hop.classList.remove('hop');
+    }
+  }
+}
+
+/* picks one idle action at a time, never while the user is busy */
+class IdleDirector {
+  constructor(fig, { isBusy = () => false, first = 7000, min = 15000, max = 40000 } = {}) {
+    this.fig = fig; this.isBusy = isBusy; this.on = true; this.level = 'full';
+    this.min = min; this.max = max; this.running = false;
+    this.schedule(first);
+    document.addEventListener('visibilitychange', () => {});
+  }
+  schedule(ms) {
+    clearTimeout(this.t);
+    this.t = setTimeout(() => this.step(), ms);
+  }
+  async step() {
+    if (!this.on || this.level !== 'full' || document.hidden || this.isBusy() || this.fig.busy) {
+      return this.schedule(2500);
+    }
+    const acts = this.fig.idleActs || ['spin', 'look', 'laptop', 'wave', 'spin', 'look'];
+    const pick = acts[Math.floor(Math.random() * acts.length)];
+    this.fig.busy = true;
+    try { await this.fig.play(pick); } finally { this.fig.busy = false; }
+    this.schedule(this.min + Math.random() * (this.max - this.min));
+  }
+  setLevel(l) { this.level = l; }
+}
+
+
+(function(){
+  const MOODS = [['neutral','Neutral'],['happy','Happy'],['thinking','Thinking'],['working','Working'],['alert','Alert'],['sleepy','Sleepy'],['surprised','Surprised']];
+  const ACTIONS = [['turn','Turn around'],['spin','Spin'],['twirl','Twirl'],['flip','Flip'],['dance','Dance'],['nod','Nod yes'],['shake','Shake no'],['bow','Bow'],['wave','Wave'],['laptop','Pull out computer'],['look','Look around'],['hop','Hop (task done)']];
+  const SKINS = [['blue','Koios blue bands (default)'],['pearl','Pearl, soft pale-blue bands'],['ice','Ice'],['aqua','Aqua'],['peri','Periwinkle'],['indigo','Indigo']];
+  const MOOD_TEXT = {
+    neutral:'Neutral · eyes follow your cursor', happy:'Happy · task done', thinking:'Thinking · ring orbits while a sentence is read',
+    working:'Working · placing an event', alert:'Alert · exam or deadline reminder', sleepy:'Sleepy · after 3 minutes with no input', surprised:'Surprised · something unexpected'
+  };
+
+  const HAS3D = typeof Koios3D !== 'undefined' && Koios3D.supported();
+  const Fig = HAS3D ? Koios3D : KoiosFigure;
+  const fig = new Fig(document.getElementById('hero'), HAS3D ? { w: 400 } : {});
+  const small = [];
+  const sizesEl = document.getElementById('sizes');
+  [160, 96, 48].forEach(px => {
+    const f = document.createElement('figure');
+    const h = document.createElement('div'); h.style.width = px + 'px';
+    const c = document.createElement('figcaption'); c.textContent = px + ' px';
+    f.append(h, c); sizesEl.append(f);
+    small.push(new Fig(h, HAS3D ? { follow: false, w: 220, static: true } : { follow: false }));
+  });
+  const corner = new Fig(document.getElementById('cornerFig'), HAS3D ? { follow: false, w: 220, static: true } : { follow: false });
+  const all = [fig, ...small, corner];
+
+  const stateLine = document.getElementById('stateLine');
+  let currentMood = 'neutral';
+  const moodsEl = document.getElementById('moods');
+  MOODS.forEach(([k, label]) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.textContent = label; b.dataset.k = k;
+    b.setAttribute('aria-pressed', k === 'neutral'); moodsEl.append(b);
+    b.addEventListener('click', () => {
+      currentMood = k; fig.setMood(k);
+      moodsEl.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x === b));
+      stateLine.textContent = MOOD_TEXT[k];
+    });
+  });
+  stateLine.textContent = MOOD_TEXT.neutral;
+
+  async function run(name) {
+    if (fig.busy) return;
+    fig.busy = true;
+    const prev = stateLine.textContent;
+    stateLine.textContent = 'Idle action · ' + ACTIONS.find(a => a[0] === name)[1].toLowerCase();
+    try { await fig.play(name); } finally { fig.busy = false; stateLine.textContent = prev; }
+  }
+  const actionsEl = document.getElementById('actions');
+  ACTIONS.forEach(([k, label]) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.textContent = label;
+    b.addEventListener('click', () => run(k)); actionsEl.append(b);
+  });
+
+  const idle = new IdleDirector(fig, { first: 9000, min: 12000, max: 26000, isBusy: () => document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text' });
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) idle.setLevel('calm');
+  document.getElementById('idleOn').addEventListener('change', e => { idle.on = e.target.checked; });
+  
+  const skinsEl = document.getElementById('skins'), skinName = document.getElementById('skinName');
+  SKINS.forEach(([k, label]) => {
+    const b = document.createElement('button'); b.className = 'sw'; b.type = 'button'; b.dataset.s = k; b.setAttribute('aria-label', label);
+    b.setAttribute('aria-pressed', k === 'blue'); skinsEl.append(b);
+    b.addEventListener('click', () => {
+      all.forEach(f => f.setSkin(k));
+      skinsEl.querySelectorAll('.sw').forEach(x => x.setAttribute('aria-pressed', x === b));
+      skinName.textContent = label;
+    });
+  });
+
+
+  (function(){
+    const hero = document.getElementById('hero'); let drag = null, oy = 0, op = 0, tid = 0;
+    const set = () => { if (fig.setOrbit) fig.setOrbit(oy, op); };
+    hero.addEventListener('pointerdown', e => { if (!HAS3D) return; drag = { x: e.clientX, y: e.clientY, oy, op }; hero.classList.add('grab'); hero.setPointerCapture(e.pointerId); cancelAnimationFrame(tid); });
+    hero.addEventListener('pointermove', e => { if (!drag) return; oy = drag.oy + (e.clientX - drag.x) * .012; op = drag.op + (e.clientY - drag.y) * .006; set(); });
+    const end = () => { drag = null; hero.classList.remove('grab'); };
+    hero.addEventListener('pointerup', end); hero.addEventListener('pointercancel', end);
+    hero.addEventListener('dblclick', () => { const a = oy, b = op, t0 = performance.now(); const go = t => { const k = Math.min(1, (t - t0) / 500), e = 1 - Math.pow(1 - k, 3); const target = Math.round(a / (Math.PI * 2)) * Math.PI * 2; oy = a + (target - a) * e; op = b * (1 - e); set(); if (k < 1) tid = requestAnimationFrame(go); }; tid = requestAnimationFrame(go); });
+  })();
+
+  const line = new StringLine(document.getElementById('line'), { amp: 16, width: 3, startVisible: false });
+  line.sweep(800);
+  setTimeout(() => line.pluck(0.5, 16), 800);
+  document.getElementById('line').addEventListener('pointerdown', e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    line.pluck(Math.min(.92, Math.max(.08, (e.clientX - r.left) / r.width)), 16);
+  });
+})();
+</script>

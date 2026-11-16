@@ -1,0 +1,240 @@
+<title>KOIOS Appearance Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Belleza&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: one large floating agent on a pearl stage, a quiet control column beside it,
+   the signature blue line across the top. Single deliberate look: pearl white and blues only. */
+:root{
+  --pearl:#F6F8FC; --pearl2:#EAF0FA; --mist:#C9D8F0; --sky:#8FB8FF; --blue:#2F6BFF; --ion:#3DD6FF; --ink:#0A1B4A; --ink2:#4A5C8A;
+  --f-display:Optima,'Optima nova',Candara,'Belleza','Segoe UI',system-ui,sans-serif; --f-body:Optima,'Optima nova',Candara,'Belleza','Segoe UI',system-ui,sans-serif; --f-mono:'JetBrains Mono',ui-monospace,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--pearl);color:var(--ink)}
+body{margin:0;font-family:var(--f-body);font-size:15px;line-height:1.5;overflow-x:clip;padding-block:8px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:16px}
+.brand{font-family:var(--f-display);font-weight:700;letter-spacing:.34em;font-size:20px;color:var(--ink)}
+.tag{font-family:var(--f-mono);font-size:12px;color:var(--ink2);letter-spacing:.04em}
+.lineWrap{position:relative;left:50%;width:100vw;transform:translateX(-50%);height:64px;margin-top:6px}
+#line{width:100%;height:100%;display:block;cursor:pointer}
+main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:start;margin-top:8px}
+.stageCol{overflow-x:clip;min-width:0;position:sticky;top:16px}
+.stage{position:relative;width:min(100%,400px);margin:12px auto 0;aspect-ratio:400/460}
+.halo{position:absolute;inset:-6% -14% -4%;border-radius:50%;background:radial-gradient(closest-side,rgba(143,184,255,.35),rgba(61,214,255,.10) 55%,transparent 72%);pointer-events:none}
+.rings{position:absolute;left:50%;bottom:6%;width:128%;aspect-ratio:3/1;transform:translateX(-50%);pointer-events:none}
+.rings i{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(143,184,255,.55)}
+.rings i:nth-child(2){inset:14% 12%;border-color:rgba(143,184,255,.4)}
+.rings i:nth-child(3){inset:28% 26%;border-color:rgba(61,214,255,.35)}
+.hero{position:relative;width:100%;cursor:grab;touch-action:pan-y}
+.hero.grab{cursor:grabbing}
+.hint{text-align:center;font-family:var(--f-mono);font-size:11.5px;color:var(--ink2);margin:6px 0 0}
+.anat{position:absolute;left:-45%;width:190%;top:0;height:calc(100% * 440 / 460);pointer-events:none;opacity:0;transition:opacity .25s;overflow:visible;display:none}
+.stage.showAnat .anat{opacity:1}
+.anat text{font-family:var(--f-body);font-size:12.5px;fill:var(--ink)}
+.anat line{stroke:var(--blue);stroke-width:1.2}
+.anat circle{fill:var(--blue)}
+.state{text-align:center;font-family:var(--f-mono);font-size:12.5px;color:var(--ink2);margin:20px 0 0;min-height:1.5em}
+.panel{display:flex;flex-direction:column;gap:20px;padding-top:12px}
+.panel section{background:rgba(234,240,250,.55);border:1px solid rgba(201,216,240,.8);border-radius:20px;padding:16px}
+h2{margin:0 0 12px;font-family:var(--f-mono);font-weight:500;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;color:inherit}
+.chip{appearance:none;border:1px solid var(--mist);background:var(--pearl);color:var(--ink);border-radius:999px;padding:7px 14px;font-size:13.5px;font-weight:500;cursor:pointer;transition:background .15s,border-color .15s,color .15s,transform .15s}
+.chip:hover{border-color:var(--sky);transform:translateY(-1px)}
+.chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.chip:focus-visible,.sw:focus-visible,.line-btn:focus-visible,input:focus-visible{outline:2px solid var(--ion);outline-offset:2px}
+.row{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:13.5px;color:var(--ink2)}
+.row input{accent-color:var(--blue);width:16px;height:16px}
+.swatches{display:flex;gap:12px;flex-wrap:wrap}
+.sw{appearance:none;width:38px;height:38px;border-radius:50%;border:2px solid var(--pearl);cursor:pointer;box-shadow:0 0 0 1px var(--mist);transition:transform .15s,box-shadow .15s}
+.sw:hover{transform:scale(1.08)}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--blue)}
+.sw[data-s="blue"]{background:linear-gradient(160deg,#8FB8FF,#2F6BFF 60%,#173FB4)}
+.sw[data-s="pearl"]{background:linear-gradient(160deg,#FFFFFF,#E3ECFA 60%,#A9BEE6)}
+.sw[data-s="ice"]{background:linear-gradient(160deg,#E3EEFF,#86B6FF 60%,#3F76D6)}
+.sw[data-s="aqua"]{background:linear-gradient(160deg,#B4F3FF,#1FB9E0 60%,#0B6F9C)}
+.sw[data-s="peri"]{background:linear-gradient(160deg,#D3DAFF,#7F8FF4 60%,#4553BC)}
+.sw[data-s="indigo"]{background:linear-gradient(160deg,#A5AFFF,#4C57E8 60%,#262D9F)}
+.swNames{font-family:var(--f-mono);font-size:11.5px;color:var(--ink2);margin-top:10px}
+.sizes{display:flex;align-items:flex-end;gap:20px}
+.sizes figure{margin:0;text-align:center;font-family:var(--f-mono);font-size:11px;color:var(--ink2)}
+.sizes figcaption{margin-top:6px}
+.corner{position:relative;margin-top:16px;height:150px;border-radius:16px;background:var(--pearl);border:1px solid var(--mist);overflow:hidden}
+.corner .cl{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--mist),transparent 35%,transparent 65%,var(--mist))}
+.corner .cap{position:absolute;left:96px;bottom:46px;background:var(--blue);color:#fff;font-size:12px;font-weight:500;padding:6px 10px;border-radius:12px 12px 12px 4px}
+.corner .mini{position:absolute;left:10px;bottom:2px;width:72px}
+.corner .cardEv{position:absolute;right:16px;top:28px;width:96px;height:44px;border-radius:12px;background:rgba(47,107,255,.14);border:1px solid rgba(47,107,255,.5);font-size:11px;padding:6px 8px;font-weight:500}
+dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:8px 12px;font-size:13.5px}
+dt{color:var(--ink)}dd{margin:0;font-family:var(--f-mono);font-size:12.5px;color:var(--ink2);text-align:right}
+.note{font-size:12.5px;color:var(--ink2);margin:12px 0 0}
+.line-btn{appearance:none;border:0;background:transparent;color:var(--blue);font-size:13px;font-weight:500;cursor:pointer;padding:0}
+@media (max-width:1100px){
+  main{grid-template-columns:minmax(0,1fr)}
+  .anatToggle{display:none}
+}
+</style>
+
+<template id="koios-svg-template">{{CHAR_SVG}}</template>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">KOIOS</div>
+    <div class="tag">Appearance prototype · default blue</div>
+  </header>
+  <div class="lineWrap"><canvas id="line" aria-label="Signature blue line. Click to strike it."></canvas></div>
+
+  <main>
+    <section class="stageCol">
+      <div class="stage" id="stage">
+        <div class="halo"></div>
+        <div class="rings"><i></i><i></i><i></i></div>
+        <div class="hero" id="hero"></div>
+              </div>
+      <p class="hint">Drag the bot to turn it around · double-click to reset</p>
+      <p class="state" id="stateLine" role="status"></p>
+    </section>
+
+    <aside class="panel">
+      <section>
+        <h2>Expression</h2>
+        <div class="chips" id="moods"></div>
+        <p class="note">No mouth. Only the almond eyes, ears and arms change, so each mood still reads at a small size.</p>
+      </section>
+
+      <section>
+        <h2>Idle actions</h2>
+        <div class="chips" id="actions"></div>
+        <label class="row"><input type="checkbox" id="idleOn" checked> Run idle actions automatically</label>
+                <p class="note">At rest KOIOS only floats and blinks. One action plays at a time, every 12 to 26 seconds here. Spins, flips and the back view are real 3D.</p>
+      </section>
+
+      <section>
+        <h2>Band color</h2>
+        <div class="swatches" id="skins"></div>
+        <div class="swNames" id="skinName">Koios blue bands (default)</div>
+      </section>
+
+      <section>
+        <h2>Size check</h2>
+        <div class="sizes" id="sizes"></div>
+        <div class="corner" id="corner" aria-label="KOIOS in the bottom-left corner of a calendar">
+          <span class="cl" style="top:34px"></span><span class="cl" style="top:68px"></span><span class="cl" style="top:102px"></span>
+          <div class="cardEv">Running</div>
+          <div class="mini" id="cornerFig"></div>
+          <div class="cap">Added: Running, Mondays 3 PM</div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Proportions</h2>
+        <dl>
+          <dt>Head width</dt><dd>1.00</dd>
+          <dt>Head height</dt><dd>0.92</dd>
+          <dt>Visor (flush, no bulge)</dt><dd>0.86</dd>
+          <dt>Eye width, each</dt><dd>0.24</dd>
+          <dt>Body width</dt><dd>0.60</dd>
+          <dt>Body height</dt><dd>0.74</dd>
+          <dt>Gap, head to body</dt><dd>0.06</dd>
+          <dt>Ear height</dt><dd>0.33</dd>
+          <dt>Arm length</dt><dd>0.33</dd>
+        </dl>
+        <p class="note">Units are head widths, taken from the reference drawing. The visor and the eyes are painted onto the helmet, so the face sits flush. The body is pearl white with blue bands on the chest, ears and arms. The ears start at either side of the head and sweep up and out. The arms hang close to the body and end in soft pearl tips, with no dark hands. A thin navy ink line outlines every part. No mouth, no center button.</p>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<script>
+{{STRING_JS}}
+{{K3D_JS}}
+{{CHAR_JS}}
+
+(function(){
+  const MOODS = [['neutral','Neutral'],['happy','Happy'],['thinking','Thinking'],['working','Working'],['alert','Alert'],['sleepy','Sleepy'],['surprised','Surprised']];
+  const ACTIONS = [['turn','Turn around'],['spin','Spin'],['twirl','Twirl'],['flip','Flip'],['dance','Dance'],['nod','Nod yes'],['shake','Shake no'],['bow','Bow'],['wave','Wave'],['laptop','Pull out computer'],['look','Look around'],['hop','Hop (task done)']];
+  const SKINS = [['blue','Koios blue bands (default)'],['pearl','Pearl, soft pale-blue bands'],['ice','Ice'],['aqua','Aqua'],['peri','Periwinkle'],['indigo','Indigo']];
+  const MOOD_TEXT = {
+    neutral:'Neutral · eyes follow your cursor', happy:'Happy · task done', thinking:'Thinking · ring orbits while a sentence is read',
+    working:'Working · placing an event', alert:'Alert · exam or deadline reminder', sleepy:'Sleepy · after 3 minutes with no input', surprised:'Surprised · something unexpected'
+  };
+
+  const HAS3D = typeof Koios3D !== 'undefined' && Koios3D.supported();
+  const Fig = HAS3D ? Koios3D : KoiosFigure;
+  const fig = new Fig(document.getElementById('hero'), HAS3D ? { w: 400 } : {});
+  const small = [];
+  const sizesEl = document.getElementById('sizes');
+  [160, 96, 48].forEach(px => {
+    const f = document.createElement('figure');
+    const h = document.createElement('div'); h.style.width = px + 'px';
+    const c = document.createElement('figcaption'); c.textContent = px + ' px';
+    f.append(h, c); sizesEl.append(f);
+    small.push(new Fig(h, HAS3D ? { follow: false, w: 220, static: true } : { follow: false }));
+  });
+  const corner = new Fig(document.getElementById('cornerFig'), HAS3D ? { follow: false, w: 220, static: true } : { follow: false });
+  const all = [fig, ...small, corner];
+
+  const stateLine = document.getElementById('stateLine');
+  let currentMood = 'neutral';
+  const moodsEl = document.getElementById('moods');
+  MOODS.forEach(([k, label]) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.textContent = label; b.dataset.k = k;
+    b.setAttribute('aria-pressed', k === 'neutral'); moodsEl.append(b);
+    b.addEventListener('click', () => {
+      currentMood = k; fig.setMood(k);
+      moodsEl.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x === b));
+      stateLine.textContent = MOOD_TEXT[k];
+    });
+  });
+  stateLine.textContent = MOOD_TEXT.neutral;
+
+  async function run(name) {
+    if (fig.busy) return;
+    fig.busy = true;
+    const prev = stateLine.textContent;
+    stateLine.textContent = 'Idle action · ' + ACTIONS.find(a => a[0] === name)[1].toLowerCase();
+    try { await fig.play(name); } finally { fig.busy = false; stateLine.textContent = prev; }
+  }
+  const actionsEl = document.getElementById('actions');
+  ACTIONS.forEach(([k, label]) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.textContent = label;
+    b.addEventListener('click', () => run(k)); actionsEl.append(b);
+  });
+
+  const idle = new IdleDirector(fig, { first: 9000, min: 12000, max: 26000, isBusy: () => document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text' });
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) idle.setLevel('calm');
+  document.getElementById('idleOn').addEventListener('change', e => { idle.on = e.target.checked; });
+  
+  const skinsEl = document.getElementById('skins'), skinName = document.getElementById('skinName');
+  SKINS.forEach(([k, label]) => {
+    const b = document.createElement('button'); b.className = 'sw'; b.type = 'button'; b.dataset.s = k; b.setAttribute('aria-label', label);
+    b.setAttribute('aria-pressed', k === 'blue'); skinsEl.append(b);
+    b.addEventListener('click', () => {
+      all.forEach(f => f.setSkin(k));
+      skinsEl.querySelectorAll('.sw').forEach(x => x.setAttribute('aria-pressed', x === b));
+      skinName.textContent = label;
+    });
+  });
+
+
+  (function(){
+    const hero = document.getElementById('hero'); let drag = null, oy = 0, op = 0, tid = 0;
+    const set = () => { if (fig.setOrbit) fig.setOrbit(oy, op); };
+    hero.addEventListener('pointerdown', e => { if (!HAS3D) return; drag = { x: e.clientX, y: e.clientY, oy, op }; hero.classList.add('grab'); hero.setPointerCapture(e.pointerId); cancelAnimationFrame(tid); });
+    hero.addEventListener('pointermove', e => { if (!drag) return; oy = drag.oy + (e.clientX - drag.x) * .012; op = drag.op + (e.clientY - drag.y) * .006; set(); });
+    const end = () => { drag = null; hero.classList.remove('grab'); };
+    hero.addEventListener('pointerup', end); hero.addEventListener('pointercancel', end);
+    hero.addEventListener('dblclick', () => { const a = oy, b = op, t0 = performance.now(); const go = t => { const k = Math.min(1, (t - t0) / 500), e = 1 - Math.pow(1 - k, 3); const target = Math.round(a / (Math.PI * 2)) * Math.PI * 2; oy = a + (target - a) * e; op = b * (1 - e); set(); if (k < 1) tid = requestAnimationFrame(go); }; tid = requestAnimationFrame(go); });
+  })();
+
+  const line = new StringLine(document.getElementById('line'), { amp: 16, width: 3, startVisible: false });
+  line.sweep(800);
+  setTimeout(() => line.pluck(0.5, 16), 800);
+  document.getElementById('line').addEventListener('pointerdown', e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    line.pluck(Math.min(.92, Math.max(.08, (e.clientX - r.left) / r.width)), 16);
+  });
+})();
+</script>

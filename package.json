@@ -1,0 +1,12 @@
+{
+  "name": "koios",
+  "version": "0.5.0",
+  "private": true,
+  "description": "KOIOS: an AI calendar agent with a 3D assistant, habits, day tasks and milestones.",
+  "scripts": {
+    "build": "python3 scripts/build.py",
+    "check": "python3 scripts/check_syntax.py",
+    "test:parser": "node tests/parser.test.js",
+    "test": "npm run build && npm run check && npm run test:parser && python3 tests/test_timed_drag_resize.py && python3 tests/test_day_tasks_month.py && python3 tests/test_prism_account.py && python3 tests/test_themes_and_phone.py && python3 tests/test_onboarding_layout.py && python3 tests/test_phone_calendar.py"
+  }
+}

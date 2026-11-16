@@ -1,0 +1,133 @@
+/* ---------- KOIOS character ---------- */
+.koios{--k1:#8FB8FF;--k2:#2F6BFF;--k3:#173FB4;--kion:#3DD6FF;--kacc:var(--k2);--lx:0;--ly:0;--aL:20deg;--aR:-20deg;--lean:0;display:block;width:100%;height:auto;overflow:visible}
+.koios[data-skin="ice"]{--k1:#E3EEFF;--k2:#86B6FF;--k3:#3F76D6}
+.koios[data-skin="aqua"]{--k1:#B4F3FF;--k2:#1FB9E0;--k3:#0B6F9C}
+.koios[data-skin="peri"]{--k1:#D3DAFF;--k2:#7F8FF4;--k3:#4553BC}
+.koios[data-skin="indigo"]{--k1:#A5AFFF;--k2:#4C57E8;--k3:#262D9F}
+.koios[data-skin="pearl"]{--k1:#FFFFFF;--k2:#E3ECFA;--k3:#A9BEE6;--kacc:#3D86FF}
+.koios *{transform-box:fill-box;transform-origin:center}
+
+.k-float{animation:kBob 3.2s ease-in-out infinite}
+.k-headg{animation:kHead 3.2s ease-in-out -0.4s infinite}
+.k-shadow{animation:kShadow 3.2s ease-in-out infinite}
+.k-ring{animation:kRing 3.2s ease-in-out infinite}
+.k-core-dot{animation:kCore 2.4s ease-in-out infinite}
+.k-armL{animation:kSwayL 3.2s ease-in-out -0.2s infinite}
+.k-armR{animation:kSwayR 3.2s ease-in-out -0.6s infinite}
+@keyframes kBob{0%,100%{translate:0 0}50%{translate:0 -7px}}
+@keyframes kHead{0%,100%{translate:0 0}50%{translate:0 -4px}}
+@keyframes kShadow{0%,100%{scale:1;opacity:.95}50%{scale:.84;opacity:.55}}
+@keyframes kRing{0%,100%{opacity:.75}50%{opacity:1}}
+@keyframes kCore{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes kSwayL{0%,100%{translate:0 0}50%{translate:0 -3px}}
+@keyframes kSwayR{0%,100%{translate:0 0}50%{translate:0 -3px}}
+
+.k-hop{rotate:calc(var(--lean) * 1deg)}
+.k-hop.hop{animation:kHop .55s cubic-bezier(.3,.7,.4,1)}
+@keyframes kHop{0%{translate:0 0}35%{translate:0 -18px}70%{translate:0 2px}100%{translate:0 0}}
+
+/* arms and ears */
+.k-arm{transition:rotate .35s cubic-bezier(.3,.7,.4,1)}
+.k-armL{rotate:var(--aL)}
+.k-armR{rotate:var(--aR)}
+.k-armL,.k-armR{transform-origin:50% 6%}
+.k-earL,.k-earR{transform-origin:50% 85%;transition:transform .3s cubic-bezier(.3,.7,.4,1)}
+.k-earL{transform:rotate(-4deg)}
+.k-earR{transform:rotate(4deg)}
+
+/* face */
+.k-eyes{transform:translate(calc(var(--lx) * 5px),calc(var(--ly) * 4px));transition:transform .14s linear}
+.k-eye{transition:transform .22s ease}
+.k-eyeH{opacity:0;transition:opacity .15s}
+.k-m{opacity:0;transition:opacity .15s}
+.k-m-smile{opacity:1}
+.k-back{opacity:0}
+.k-z{opacity:0}
+.koios.blink .k-eye{transform:scaleY(.08)}
+
+/* moods */
+.koios[data-mood="happy"] .k-eye{opacity:0}
+.koios[data-mood="happy"] .k-eyeH{opacity:1}
+.koios[data-mood="happy"] .k-m-smile{opacity:0}
+.koios[data-mood="happy"] .k-m-grin{opacity:1}
+.koios[data-mood="happy"] .k-earL{transform:translateY(-3px) rotate(-14deg)}
+.koios[data-mood="happy"] .k-earR{transform:translateY(-3px) rotate(14deg)}
+.koios[data-mood="happy"]{--aL:34deg;--aR:-34deg}
+
+.koios[data-mood="thinking"] .k-eyes{transform:translate(8px,-7px)}
+.koios[data-mood="thinking"] .k-m-smile{opacity:0}
+.koios[data-mood="thinking"] .k-m-flat{opacity:1}
+.koios[data-mood="thinking"] .k-earL{transform:translateY(-5px) rotate(-20deg)}
+.koios[data-mood="thinking"] .k-earR{transform:rotate(8deg)}
+.koios[data-mood="thinking"] .k-ring{stroke-dasharray:22 14;animation:kOrbit 1.1s linear infinite}
+@keyframes kOrbit{to{stroke-dashoffset:-72}}
+
+.koios[data-mood="working"] .k-eye{transform:scale(1.06,.7)}
+.koios[data-mood="working"] .k-m-smile{opacity:0}
+.koios[data-mood="working"] .k-m-flat{opacity:1}
+.koios[data-mood="working"] .k-earL{transform:translateY(3px) rotate(22deg)}
+.koios[data-mood="working"] .k-earR{transform:translateY(3px) rotate(-22deg)}
+
+.koios[data-mood="alert"] .k-eye{transform:scale(1.2,1.25)}
+.koios[data-mood="alert"] .k-m-smile{opacity:0}
+.koios[data-mood="alert"] .k-m-open{opacity:1}
+.koios[data-mood="alert"] .k-earL{transform:translateY(-9px) rotate(-18deg)}
+.koios[data-mood="alert"] .k-earR{transform:translateY(-9px) rotate(18deg)}
+.koios[data-mood="alert"] .k-ring{animation:kAlert .7s ease-in-out infinite}
+@keyframes kAlert{0%,100%{opacity:.6}50%{opacity:1}}
+
+.koios[data-mood="sleepy"] .k-eye{transform:translateY(5px) scaleY(.3)}
+.koios[data-mood="sleepy"] .k-m-smile{opacity:0}
+.koios[data-mood="sleepy"] .k-m-flat{opacity:1}
+.koios[data-mood="sleepy"] .k-earL{transform:translateY(4px) rotate(26deg)}
+.koios[data-mood="sleepy"] .k-earR{transform:translateY(4px) rotate(-26deg)}
+.koios[data-mood="sleepy"] .k-float{animation-duration:5.4s}
+.koios[data-mood="sleepy"] .k-headg{animation-duration:5.4s;translate:0 4px}
+.koios[data-mood="sleepy"] .k-ring{opacity:.4;animation:none}
+.koios[data-mood="sleepy"] .k-z1{animation:kZ 2.6s ease-in-out infinite}
+.koios[data-mood="sleepy"] .k-z2{animation:kZ 2.6s ease-in-out 1.1s infinite}
+@keyframes kZ{0%{opacity:0;translate:0 8px}30%{opacity:.9}100%{opacity:0;translate:8px -14px}}
+
+.koios[data-mood="surprised"] .k-eye{transform:scale(.95,1.3)}
+.koios[data-mood="surprised"] .k-m-smile{opacity:0}
+.koios[data-mood="surprised"] .k-m-open{opacity:1}
+.koios[data-mood="surprised"] .k-earL{transform:translateY(-7px) rotate(-10deg)}
+.koios[data-mood="surprised"] .k-earR{transform:translateY(-7px) rotate(10deg)}
+.koios[data-mood="surprised"]{--aL:62deg;--aR:-62deg}
+
+/* actions: spin */
+.k-spin{transform-origin:50% 50%}
+.koios.spin .k-spin{animation:kSpin 1.2s ease-in-out}
+.koios.spin .k-face,.koios.spin .k-core{animation:kFront 1.2s linear}
+.koios.spin .k-back{animation:kBackShow 1.2s linear}
+@keyframes kSpin{0%{transform:scaleX(1)}25%{transform:scaleX(.04)}50%{transform:scaleX(-1)}75%{transform:scaleX(.04)}100%{transform:scaleX(1)}}
+@keyframes kFront{0%,24%{opacity:1}28%,72%{opacity:0}76%,100%{opacity:1}}
+@keyframes kBackShow{0%,24%{opacity:0}28%,72%{opacity:1}76%,100%{opacity:0}}
+
+/* actions: pull out a computer */
+.k-laptop{opacity:0;scale:.3;translate:0 24px;transform-origin:50% 100%}
+.koios[data-pose="laptop"] .k-laptop{animation:kLap 1s cubic-bezier(.3,.8,.4,1) forwards}
+.koios[data-pose="laptop-out"] .k-laptop{opacity:1;scale:1;translate:0 0;animation:kLapOut .45s ease-in forwards}
+@keyframes kLap{0%{opacity:0;scale:.3;translate:0 24px}100%{opacity:1;scale:1;translate:0 0}}
+@keyframes kLapOut{to{opacity:0;scale:.3;translate:0 24px}}
+.koios[data-pose="laptop"]{--aL:-58deg;--aR:58deg}
+.koios[data-pose="laptop"] .k-armL{animation:kTypeL .42s ease-in-out .4s infinite alternate}
+.koios[data-pose="laptop"] .k-armR{animation:kTypeR .42s ease-in-out .6s infinite alternate}
+@keyframes kTypeL{from{rotate:-63deg}to{rotate:-52deg}}
+@keyframes kTypeR{from{rotate:63deg}to{rotate:52deg}}
+.koios[data-pose="laptop"] .k-ln{animation:kLn 1.1s steps(2,end) infinite}
+.koios[data-pose="laptop"] .k-ln2{animation-delay:.25s}
+.koios[data-pose="laptop"] .k-ln3{animation-delay:.5s}
+.koios[data-pose="laptop"] .k-ln4{animation-delay:.75s}
+@keyframes kLn{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* actions: wave */
+.koios[data-pose="wave"]{--aR:-150deg}
+.koios[data-pose="wave"] .k-armR{animation:kWave .42s ease-in-out .35s infinite alternate}
+@keyframes kWave{from{rotate:-138deg}to{rotate:-166deg}}
+
+@media (prefers-reduced-motion: reduce){
+  .k-float,.k-headg,.k-shadow,.k-ring,.k-core-dot,.k-armL,.k-armR{animation-duration:6s}
+  .k-float{translate:0 0}
+  @keyframes kBob{0%,100%{translate:0 0}50%{translate:0 -2px}}
+}

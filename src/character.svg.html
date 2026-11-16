@@ -1,0 +1,173 @@
+<svg class="koios" viewBox="0 0 400 440" role="img" aria-label="KOIOS, a floating pearl and blue robot with a dark glass visor, tall ears, a cone-shaped body, a floating head and arms" data-mood="neutral" data-pose="rest">
+<defs>
+  <linearGradient id="kShell__U__" x1="0" y1="0" x2="0.35" y2="1">
+    <stop offset="0" style="stop-color:var(--k1)"/>
+    <stop offset="0.55" style="stop-color:var(--k2)"/>
+    <stop offset="1" style="stop-color:var(--k3)"/>
+  </linearGradient>
+  <radialGradient id="kHead__U__" cx="0.35" cy="0.22" r="0.95">
+    <stop offset="0" style="stop-color:var(--k1)"/>
+    <stop offset="0.55" style="stop-color:var(--k2)"/>
+    <stop offset="1" style="stop-color:var(--k3)"/>
+  </radialGradient>
+  <linearGradient id="kPearl__U__" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset="1" stop-color="#E1EAF9"/>
+  </linearGradient>
+  <radialGradient id="kShellP__U__" cx="0.34" cy="0.2" r="0.95">
+    <stop offset="0" stop-color="#FFFFFF"/>
+    <stop offset="0.55" stop-color="#EEF3FC"/>
+    <stop offset="1" stop-color="#C3D3EE"/>
+  </radialGradient>
+  <linearGradient id="kVisor__U__" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1B2D6B"/>
+    <stop offset="1" stop-color="#08123A"/>
+  </linearGradient>
+  <radialGradient id="kEyeG__U__" cx="0.5" cy="0.6" r="0.62">
+    <stop offset="0" stop-color="#E4FCFF"/>
+    <stop offset="0.55" stop-color="#6BE4FF"/>
+    <stop offset="1" stop-color="#1E9BEA"/>
+  </radialGradient>
+  <linearGradient id="kHand__U__" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#2A3F86"/>
+    <stop offset="1" stop-color="#0E1B52"/>
+  </linearGradient>
+  <clipPath id="kArmClip__U__"><rect x="-12" y="-6" width="24" height="56" rx="12"/></clipPath>
+  <clipPath id="kEarClipL__U__"><path d="M0 -54C9 -38 15 -12 14 20C13 33 -13 33 -14 20C-15 -12 -9 -38 0 -54Z"/></clipPath>
+  <radialGradient id="kGlow__U__" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" style="stop-color:var(--kion)" stop-opacity="0.6"/>
+    <stop offset="1" style="stop-color:var(--kion)" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="kEye__U__" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0A1B4A"/>
+    <stop offset="0.72" stop-color="#143A9E"/>
+    <stop offset="1" style="stop-color:var(--kion)"/>
+  </linearGradient>
+  <filter id="kBlur__U__" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter>
+  <filter id="kGlowF__U__" x="-40%" y="-300%" width="180%" height="700%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+
+<ellipse class="k-shadow" cx="200" cy="410" rx="68" ry="11" fill="url(#kGlow__U__)"/>
+
+<g class="k-spin">
+<g class="k-hop">
+<g class="k-float">
+
+  <!-- body: inverted cone with smoothed edges -->
+  <g class="k-bodyg">
+    <path class="k-body" d="M108 232C108 214 126 206 148 206H252C274 206 292 214 292 232C292 270 246 320 222 346C212 357 188 357 178 346C154 320 108 270 108 232Z" fill="url(#kShell__U__)"/>
+    <ellipse cx="150" cy="258" rx="11" ry="44" transform="rotate(16 150 258)" fill="#fff" opacity="0.28" filter="url(#kBlur__U__)"/>
+    <ellipse cx="200" cy="209" rx="92" ry="13" fill="url(#kPearl__U__)"/>
+    <ellipse cx="200" cy="211" rx="78" ry="8" style="fill:var(--k3)" opacity="0.32"/>
+    
+  </g>
+
+  <!-- glow ring in the gap between head and body -->
+  <ellipse class="k-ring" cx="200" cy="190" rx="54" ry="7" fill="none" style="stroke:var(--kion)" stroke-width="3" filter="url(#kGlowF__U__)"/>
+
+  <!-- head -->
+  <g class="k-headg">
+    <g class="k-earL"><g transform="translate(103 68) rotate(-15)">
+      <path d="M0 -54C9 -38 15 -12 14 20C13 33 -13 33 -14 20C-15 -12 -9 -38 0 -54Z" fill="url(#kShellP__U__)" stroke="#AFC3E6" stroke-width="2"/>
+      <g clip-path="url(#kEarClipL__U__)" style="fill:var(--kacc)">
+        <rect x="-16" y="-30" width="32" height="7" rx="3"/>
+        <rect x="-16" y="-15" width="32" height="7" rx="3"/>
+        <rect x="-16" y="0" width="32" height="7" rx="3"/>
+      </g>
+      <ellipse cx="-5" cy="-26" rx="2.6" ry="9" fill="#fff" opacity="0.85"/>
+    </g></g>
+    <g class="k-earR"><g transform="translate(297 68) rotate(15) scale(-1 1)">
+      <path d="M0 -54C9 -38 15 -12 14 20C13 33 -13 33 -14 20C-15 -12 -9 -38 0 -54Z" fill="url(#kShellP__U__)" stroke="#AFC3E6" stroke-width="2"/>
+      <g clip-path="url(#kEarClipL__U__)" style="fill:var(--kacc)">
+        <rect x="-16" y="-30" width="32" height="7" rx="3"/>
+        <rect x="-16" y="-15" width="32" height="7" rx="3"/>
+        <rect x="-16" y="0" width="32" height="7" rx="3"/>
+      </g>
+      <ellipse cx="-5" cy="-26" rx="2.6" ry="9" fill="#fff" opacity="0.85"/>
+    </g></g>
+
+    <ellipse cx="200" cy="106" rx="90" ry="68" fill="url(#kShellP__U__)"/>
+    <ellipse cx="158" cy="54" rx="36" ry="9" transform="rotate(-14 158 54)" fill="#fff" opacity="0.7" filter="url(#kBlur__U__)"/>
+    <path d="M148 52Q200 30 252 52" fill="none" style="stroke:var(--kacc)" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="30 9" opacity="0.9"/>
+
+    <g class="k-face">
+      <path d="M134 98C134 80 150 72 170 72H230C250 72 266 80 266 98V120C266 142 246 154 224 154H176C154 154 134 142 134 120Z" fill="url(#kVisor__U__)"/>
+      <path d="M134 98C134 80 150 72 170 72H230C250 72 266 80 266 98V120C266 142 246 154 224 154H176C154 154 134 142 134 120Z" fill="none" stroke="#fff" stroke-opacity="0.85" stroke-width="2.5"/>
+      <path d="M146 86Q168 78 196 80" fill="none" stroke="#fff" stroke-opacity="0.22" stroke-width="5" stroke-linecap="round"/>
+      <ellipse cx="150" cy="130" rx="9" ry="5" fill="#3DD6FF" opacity="0.22"/>
+      <ellipse cx="250" cy="130" rx="9" ry="5" fill="#3DD6FF" opacity="0.22"/>
+      <g class="k-eyes">
+        <g transform="translate(171 109)">
+          <g class="k-eye">
+            <ellipse rx="19" ry="22" fill="#3DD6FF" opacity="0.4" filter="url(#kBlur__U__)"/>
+            <ellipse rx="12.5" ry="16.5" fill="url(#kEyeG__U__)"/>
+            <circle cx="-4.5" cy="-7" r="4.2" fill="#fff"/>
+            <circle cx="4" cy="7" r="1.8" fill="#fff" opacity="0.8"/>
+          </g>
+          <path class="k-eyeH" d="M-12 5Q0 -13 12 5" fill="none" stroke="#7FEAFF" stroke-width="5" stroke-linecap="round"/>
+        </g>
+        <g transform="translate(229 109)">
+          <g class="k-eye">
+            <ellipse rx="19" ry="22" fill="#3DD6FF" opacity="0.4" filter="url(#kBlur__U__)"/>
+            <ellipse rx="12.5" ry="16.5" fill="url(#kEyeG__U__)"/>
+            <circle cx="-4.5" cy="-7" r="4.2" fill="#fff"/>
+            <circle cx="4" cy="7" r="1.8" fill="#fff" opacity="0.8"/>
+          </g>
+          <path class="k-eyeH" d="M-12 5Q0 -13 12 5" fill="none" stroke="#7FEAFF" stroke-width="5" stroke-linecap="round"/>
+        </g>
+      </g>
+      <g transform="translate(200 138)">
+        <path class="k-m k-m-smile" d="M-7 0Q0 6 7 0" fill="none" stroke="#7FEAFF" stroke-width="2.8" stroke-linecap="round"/>
+        <path class="k-m k-m-grin" d="M-10 -1Q0 11 10 -1Z" fill="#7FEAFF" stroke="#7FEAFF" stroke-width="2" stroke-linejoin="round"/>
+        <ellipse class="k-m k-m-open" rx="4.5" ry="5.5" fill="#7FEAFF"/>
+        <path class="k-m k-m-flat" d="M-5 2H5" fill="none" stroke="#7FEAFF" stroke-width="2.8" stroke-linecap="round"/>
+      </g>
+    </g>
+
+    <g class="k-back">
+      <circle cx="200" cy="108" r="26" fill="#fff" opacity="0.7"/>
+      <circle cx="200" cy="108" r="17" fill="none" style="stroke:var(--kacc)" stroke-width="3"/>
+      <circle cx="200" cy="108" r="7" style="fill:var(--kion)"/>
+    </g>
+
+    <g class="k-zs" font-family="Sora, 'DM Sans', sans-serif" font-weight="700" style="fill:var(--k3)">
+      <text class="k-z k-z1" x="290" y="46" font-size="22">z</text>
+      <text class="k-z k-z2" x="312" y="26" font-size="16">z</text>
+    </g>
+  </g>
+
+  <!-- laptop (hidden until pulled out) -->
+  <g class="k-laptop"><g transform="translate(200 300)">
+    <rect x="-47" y="-66" width="94" height="62" rx="8" fill="#EEF3FC" stroke="#C9D8F0" stroke-width="2"/>
+    <rect x="-40" y="-59" width="80" height="48" rx="4" fill="#0A1B4A"/>
+    <rect class="k-ln k-ln1" x="-32" y="-51" width="38" height="4" rx="2" style="fill:var(--kion)"/>
+    <rect class="k-ln k-ln2" x="-32" y="-42" width="58" height="4" rx="2" fill="#8FB8FF"/>
+    <rect class="k-ln k-ln3" x="-32" y="-33" width="30" height="4" rx="2" fill="#8FB8FF"/>
+    <rect class="k-ln k-ln4" x="-32" y="-24" width="46" height="4" rx="2" style="fill:var(--kion)"/>
+    <path d="M-58 -4H58L51 7H-51Z" fill="#DCE6F8" stroke="#C9D8F0" stroke-width="2" stroke-linejoin="round"/>
+  </g></g>
+
+  <!-- arms: float apart from the body, pearl shell with blue bands and navy hands -->
+  <g class="k-arm k-armL"><g transform="translate(86 238)">
+    <g clip-path="url(#kArmClip__U__)">
+      <rect x="-12" y="-6" width="24" height="56" fill="url(#kShellP__U__)"/>
+      <rect x="-14" y="10" width="28" height="7" style="fill:var(--kacc)"/>
+      <rect x="-14" y="24" width="28" height="7" style="fill:var(--kacc)"/>
+    </g>
+    <circle cx="0" cy="56" r="16" fill="url(#kHand__U__)"/>
+    <ellipse cx="-5" cy="50" rx="4" ry="6" fill="#fff" opacity="0.28"/>
+  </g></g>
+  <g class="k-arm k-armR"><g transform="translate(314 238)">
+    <g clip-path="url(#kArmClip__U__)">
+      <rect x="-12" y="-6" width="24" height="56" fill="url(#kShellP__U__)"/>
+      <rect x="-14" y="10" width="28" height="7" style="fill:var(--kacc)"/>
+      <rect x="-14" y="24" width="28" height="7" style="fill:var(--kacc)"/>
+    </g>
+    <circle cx="0" cy="56" r="16" fill="url(#kHand__U__)"/>
+    <ellipse cx="5" cy="50" rx="4" ry="6" fill="#fff" opacity="0.28"/>
+  </g></g>
+
+</g>
+</g>
+</g>
+</svg>
